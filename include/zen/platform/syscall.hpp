@@ -77,10 +77,6 @@ syscall(
 }
 #endif
 
-NODISCARD
-auto
-get_pid() noexcept -> u32;
-
 auto
 nt_query_information_process(
     const void*       process_handle,

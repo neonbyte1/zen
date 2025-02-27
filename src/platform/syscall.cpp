@@ -23,10 +23,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <zen/platform/syscall.hpp>
+#include <zen/platform/windows.hpp>
 #if defined(ZEN_TARGET_32_BIT)
 #include <zen/platform/heavensgate.hpp>
 #else
-#include <zen/platform/windows.hpp>
 #include <intrin.h>
 namespace {
 NODISCARD

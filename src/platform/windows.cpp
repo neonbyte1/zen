@@ -179,19 +179,6 @@ win::get_peb() noexcept -> uptr
 }
 
 auto
-win::get_pid() noexcept -> u32
-{
-    // https://en.wikipedia.org/wiki/Win32_Thread_Information_Block#Contents_of_the_TIB_on_Windows
-    // Type     Offset (x86)    Offset (x64)    Description
-    // pointer 	FS:[0x20] 	    GS:[0x40] 	    Process ID (in some Windows distributions this field is used as DebugContext)
-#if defined(ZEN_TARGET_64_BIT)
-    return static_cast<u32>(__readgsdword(0x40));
-#else
-    return __readfsdword(0x20);
-#endif
-}
-
-auto
 win::get_module_handle(
     const u32  name,
     const bool lowercase
