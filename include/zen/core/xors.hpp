@@ -12,7 +12,7 @@
 //    names of its contributors may be used to endorse or promote products
 //    derived from this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 // DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
@@ -35,14 +35,14 @@ struct random_generator
     // Park-Miller 31 bit pseudo-random number generator, implemented with G. Carta's optimisation:
     // with 32-bit math and without division
 
-    constexpr static unsigned a = 16807;                           // 7^5
-    constexpr static unsigned s = random_generator<N - 1>::value;
-    constexpr static unsigned lo = a * (s & 0xFFFF);                // Multiply lower 16 bits by 16807
-    constexpr static unsigned hi = a * (s >> 16);                   // Multiply higher 16 bits by 16807
-    constexpr static unsigned lo2 = lo + ((hi & 0x7FFF) << 16);      // Combine lower 15 bits of hi with lo's upper bits
-    constexpr static unsigned hi2 = hi >> 15;                        // Discard lower 15 bits of hi
-    constexpr static unsigned lo3 = lo2 + hi;
-    constexpr static unsigned max = 2147483647;                      // 2^31 - 1
+    constexpr static unsigned a     = 16807;                           // 7^5
+    constexpr static unsigned s     = random_generator<N - 1>::value;
+    constexpr static unsigned lo    = a * (s & 0xFFFF);                // Multiply lower 16 bits by 16807
+    constexpr static unsigned hi    = a * (s >> 16);                   // Multiply higher 16 bits by 16807
+    constexpr static unsigned lo2   = lo + ((hi & 0x7FFF) << 16);      // Combine lower 15 bits of hi with lo's upper bits
+    constexpr static unsigned hi2   = hi >> 15;                        // Discard lower 15 bits of hi
+    constexpr static unsigned lo3   = lo2 + hi;
+    constexpr static unsigned max   = 2147483647;                      // 2^31 - 1
     constexpr static unsigned value = lo3 > max ? lo3 - max : lo3;
 };
 
@@ -86,12 +86,12 @@ public:
 
 private:
     NODISCARD
-        constexpr
-        static
-        auto
-        crypt(
-            const value_type c
-        ) noexcept -> char
+    constexpr
+    static
+    auto
+    crypt(
+        const value_type c
+    ) noexcept -> char
     {
         return c ^ random_char<T, K>::value;
     }
@@ -99,18 +99,18 @@ private:
 public:
     template<szt... Is>
     constexpr
-        ZEN_FORCEINLINE
-        xor_string(
-            const_pointer const str,
-            std::index_sequence<Is...>
-        ) noexcept
+    ZEN_FORCEINLINE
+    xor_string(
+        const_pointer const str,
+        std::index_sequence<Is...>
+    ) noexcept
         : buffer_{ crypt(str[Is])... }
     {}
 
     NODISCARD
-        auto
-        ZEN_FORCEINLINE
-        get() noexcept -> const_pointer
+    auto
+    ZEN_FORCEINLINE
+    get() noexcept -> const_pointer
     {
         for (szt i{}; i < N; ++i) {
             buffer_[i] = crypt(buffer_[i]);
