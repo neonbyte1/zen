@@ -635,7 +635,7 @@ win::x64_nt_query_information_process(
         *return_length = ret_len;
     }
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -664,7 +664,7 @@ win::x64_nt_query_information_thread(
         *return_length = ret_len;
     }
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -691,7 +691,7 @@ win::x64_nt_query_system_information(
         *return_length = ret_len;
     }
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -720,7 +720,7 @@ win::x64_nt_query_object(
         *return_length = ret_len;
     }
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -749,7 +749,7 @@ win::x64_nt_query_section(
         *return_length = ret_len;
     }
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -780,7 +780,7 @@ win::x64_nt_query_virtual_memory(
         *return_length = ret_len;
     }
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -808,7 +808,7 @@ win::x64_nt_allocate_virtual_memory(
         static_cast<u64>(protection)
     );
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -832,7 +832,7 @@ win::x64_nt_free_virtual_memory(
         static_cast<u64>(free_type)
     );
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -858,7 +858,7 @@ win::x64_nt_protect_virtual_memory(
         x64_from_ptr(old_protection)
     );
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -887,7 +887,7 @@ win::x64_nt_read_virtual_memory(
         *bytes_read = bytes_processed;
     }
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -916,7 +916,7 @@ win::x64_nt_write_virtual_memory(
         *bytes_written = bytes_processed;
     }
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -966,7 +966,7 @@ win::x64_nt_close(
         ? static_cast<long_t>(x64_call(function_address, 1, x64_from_handle(handle)))
         : 0;
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -1001,7 +1001,7 @@ win::x64_nt_suspend_process(
         ? static_cast<long_t>(x64_call(function_address, 1, x64_from_handle(process_handle)))
         : 0;
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -1015,7 +1015,7 @@ win::x64_nt_resume_process(
         ? static_cast<long_t>(x64_call(function_address, 1, x64_from_handle(process_handle)))
         : 0;
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -1090,7 +1090,7 @@ win::x64_nt_suspend_thread(
         *previous_suspend_count = count;
     }
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
@@ -1159,7 +1159,7 @@ win::x64_nt_create_section(
 
     *section_handle = x64_to_handle(handle);
 
-    return status;
+    return static_cast<long_t>(status);
 }
 
 auto
