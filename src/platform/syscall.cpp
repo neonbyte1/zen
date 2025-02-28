@@ -24,6 +24,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <zen/platform/syscall.hpp>
 #include <zen/platform/windows.hpp>
+#include <zen/platform/common/handle_guard.hpp>
 #if defined(ZEN_TARGET_32_BIT)
 #include <zen/platform/heavensgate.hpp>
 #else
@@ -1068,4 +1069,12 @@ win::nt_extend_section(
 
     return syscall(syscall_index, section_handle, &section_size);
 #endif
+}
+
+auto
+detail::nt_close_guard::close(
+    const void* const handle
+) noexcept -> void
+{
+    win::nt_close(handle);
 }
