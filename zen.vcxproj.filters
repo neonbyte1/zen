@@ -165,6 +165,9 @@
     <ClInclude Include="include\zen\platform\common\handle_guard.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\zen\platform\common\com_ptr.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\platform\windows.cpp">

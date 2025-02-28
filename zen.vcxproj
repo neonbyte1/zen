@@ -324,6 +324,7 @@
     <ClInclude Include="include\zen\nt\iterator.hpp" />
     <ClInclude Include="include\zen\nt\nt_headers.hpp" />
     <ClInclude Include="include\zen\nt\optional_header.hpp" />
+    <ClInclude Include="include\zen\platform\common\com_ptr.hpp" />
     <ClInclude Include="include\zen\platform\common\handle_guard.hpp" />
     <ClInclude Include="include\zen\platform\common\status_code.hpp" />
     <ClInclude Include="include\zen\platform\heavensgate.hpp" />
