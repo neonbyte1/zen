@@ -22,6 +22,9 @@ It provides a set of functions that allow you to interact with the Windows API o
 
 The [windows.hpp](include/zen/platform/windows.hpp) file contains rebuilds of [GetModuleHandle][url_get_module_handle] and [GetProcAddress][url_get_proc_address]. With these you can obtain and call any Windows API.
 
+> [!IMPORTANT]
+> The `get_module_handle` function does **not** support the _API Set Schema_ yet, work is in progress.
+
 ## License
 
 [zen](https://github.com/neonbyte1/zen) uses the [BSD-3-Clause](LICENSE.md) license. However, the following components are included with their respective licenses:
