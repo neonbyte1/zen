@@ -12,6 +12,16 @@ It provides a set of functions that allow you to interact with the Windows API o
 - Provides support for invoking 64-bit functions within a 32-bit process through the WOW64 Heaven's Gate mechanism
 - A minimalistic approach to parsing and interacting with Windows binary formats, designed for simplicity and speed
 
+## Working with the Windows API
+
+> [!TIP]
+> The `get_module_handle` and `get_proc_address` functions can be used with ANSI **or** WIDE strings. Both functions are also supporting a 32-bit `FNV-1a` hash as `name` argument.
+
+[url_get_module_handle]: https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandlea
+[url_get_proc_address]: https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getprocaddress
+
+The [windows.hpp](include/zen/platform/windows.hpp) file contains rebuilds of [GetModuleHandle][url_get_module_handle] and [GetProcAddress][url_get_proc_address]. With these you can obtain and call any Windows API.
+
 ## License
 
 [zen](https://github.com/neonbyte1/zen) uses the [BSD-3-Clause](LICENSE.md) license. However, the following components are included with their respective licenses:
