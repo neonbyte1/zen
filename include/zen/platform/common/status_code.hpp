@@ -106,6 +106,33 @@ public:
 
     NODISCARD
     constexpr
+    auto
+    operator<=>(
+        const status_code& rhs
+    ) const noexcept -> std::strong_ordering
+    {
+        return operator<=><long_t>(rhs.code_);
+    }
+
+    template<std::integral T>
+    NODISCARD
+    constexpr
+    auto
+    operator<=>(
+        const T rhs
+    ) const noexcept -> std::strong_ordering
+    {
+        const auto other = static_cast<long_t>(rhs);
+
+        return code_ == other
+            ? std::strong_ordering::equal
+            : code_ > other
+                ? std::strong_ordering::greater
+                : std::strong_ordering::less;
+    }
+
+    NODISCARD
+    constexpr
     explicit
     operator
     bool() const noexcept
