@@ -388,7 +388,7 @@ win::nt_query_section(
 auto
 win::nt_query_virtual_memory(
     const void* const      handle,
-    const uptr             base_address,
+    const u64              base_address,
     const rtl::memory_info id,
     void* const            buffer,
     const szt              size,
@@ -436,7 +436,7 @@ win::nt_query_virtual_memory(
 auto
 win::nt_allocate_virtual_memory(
     const void* const     handle,
-    uptr*                 base_address,
+    u64*                  base_address,
     const uptr            zero_bits,
     const szt             size,
     const allocation_type allocation,
@@ -444,21 +444,14 @@ win::nt_allocate_virtual_memory(
 ) noexcept -> long_t
 {
 #if defined(ZEN_TARGET_32_BIT)
-    u64 base_addr{};
-    const auto status = x64_nt_allocate_virtual_memory(
+    return x64_nt_allocate_virtual_memory(
         handle,
-        &base_addr,
+        base_address,
         zero_bits,
         size,
         allocation,
         protection
     );
-
-    if (base_address) {
-        *base_address = static_cast<uptr>(base_addr);
-    }
-
-    return status;
 #else
     ZEN_DECL_SYSCALL_METADATA("ntdll.dll", "NtAllocateVirtualMemory")
 
@@ -479,7 +472,7 @@ win::nt_allocate_virtual_memory(
 auto
 win::nt_free_virtual_memory(
     const void* const handle,
-    const uptr        base_address,
+    const u64         base_address,
     const szt         size,
     const u32         free_type
 ) noexcept -> long_t
@@ -504,7 +497,7 @@ win::nt_free_virtual_memory(
 auto
 win::nt_protect_virtual_memory(
     const void* const      handle,
-    const uptr             base_address,
+    const u64              base_address,
     const szt              size,
     const page_protection  new_protection,
     page_protection* const old_protection
@@ -545,7 +538,7 @@ win::nt_protect_virtual_memory(
 auto
 win::nt_read_virtual_memory(
     const void* const handle,
-    const uptr        base_address,
+    const u64         base_address,
     void* const       buffer,
     const szt         size,
     szt* const        bytes_read
@@ -590,7 +583,7 @@ win::nt_read_virtual_memory(
 auto
 win::nt_write_virtual_memory(
     const void* const handle,
-    const uptr        base_address,
+    const u64         base_address,
     const void* const buffer,
     const szt         size,
     szt* const        bytes_written
@@ -1004,7 +997,7 @@ win::nt_map_view_of_section(
     const uptr                 zero_bits,
     const szt                  commit_size,
     i64* const                 section_offset
-) noexcept -> uptr
+) noexcept -> u64
 {
     void* base_address{};
 
@@ -1045,7 +1038,7 @@ win::nt_unmap_view_of_section(
 auto
 win::nt_unmap_view_of_section(
     const void* const process_handle,
-    const uptr        base_address
+    const u64         base_address
 ) noexcept -> long_t
 {
     return nt_unmap_view_of_section(

@@ -124,7 +124,7 @@ nt_query_section(
 auto
 nt_query_virtual_memory(
     const void*      handle,
-    uptr             base_address,
+    u64              base_address,
     rtl::memory_info id,
     void*            buffer,
     szt              size,
@@ -134,7 +134,7 @@ nt_query_virtual_memory(
 auto
 nt_allocate_virtual_memory(
     const void*     handle,
-    uptr*           base_address,
+    u64*            base_address,
     uptr            zero_bits,
     szt             size,
     allocation_type allocation,
@@ -144,7 +144,7 @@ nt_allocate_virtual_memory(
 auto
 nt_free_virtual_memory(
     const void* handle,
-    uptr        base_address,
+    u64         base_address,
     szt         size,
     u32         free_type
 ) noexcept -> long_t;
@@ -152,7 +152,7 @@ nt_free_virtual_memory(
 auto
 nt_protect_virtual_memory(
     const void*      handle,
-    uptr             base_address,
+    u64              base_address,
     szt              size,
     page_protection  new_protection,
     page_protection* old_protection
@@ -161,7 +161,7 @@ nt_protect_virtual_memory(
 auto
 nt_read_virtual_memory(
     const void* handle,
-    uptr        base_address,
+    u64         base_address,
     void*       buffer,
     szt         size,
     szt*        bytes_read
@@ -170,7 +170,7 @@ nt_read_virtual_memory(
 auto
 nt_write_virtual_memory(
     const void* handle,
-    uptr        base_address,
+    u64         base_address,
     const void* buffer,
     szt         size,
     szt*        bytes_written
@@ -285,7 +285,7 @@ nt_map_view_of_section(
     uptr                 zero_bits = 0,
     szt                  commit_size = 0,
     i64*                 section_offset = nullptr
-) noexcept -> uptr;
+) noexcept -> u64;
 
 auto
 nt_unmap_view_of_section(
@@ -296,7 +296,7 @@ nt_unmap_view_of_section(
 auto
 nt_unmap_view_of_section(
     const void* process_handle,
-    uptr        base_address
+    u64         base_address
 ) noexcept -> long_t;
 
 auto
