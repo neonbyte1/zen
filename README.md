@@ -14,7 +14,7 @@ It provides a set of functions that allow you to interact with the Windows API o
 
 ## License
 
-[zen](https://github.com/neonbyte1/zen) uses the [BSD-3-Clause](LICENSE.md) license but uses the following code with the corresponding licenses:
+[zen](https://github.com/neonbyte1/zen) uses the [BSD-3-Clause](LICENSE.md) license. However, the following components are included with their respective licenses:
 
 - The [coff](include/zen/coff) and [nt](include/zen/nt) directories were initially taken from [linux-pe](https://github.com/can1357/linux-pe) and are licensed under [BSD-3-Clause](https://github.com/can1357/linux-pe/blob/master/LICENSE.md)
 - The Heaven's Gate [header](include/zen/platform/heavensgate.hpp) and [source](src/platform/heavensgate.cpp) files were initially taken from [rewolf-wow64ext](https://github.com/rwfpl/rewolf-wow64ext) and are licensed under [LGPL-3.0](https://github.com/rwfpl/rewolf-wow64ext/blob/master/lgpl-3.0.txt)
