@@ -197,7 +197,7 @@ win::nt_query_information_process(
         id,
         buffer,
         size,
-        &return_length
+        &ret_len
     );
 
     if (return_length) {
@@ -242,7 +242,7 @@ win::nt_query_information_thread(
         id,
         buffer,
         size,
-        &return_length
+        &ret_len
     );
 
     if (return_length) {
@@ -329,7 +329,7 @@ win::nt_query_object(
         id,
         buffer,
         size,
-        &return_length
+        &ret_len
     );
 
     if (return_length) {
@@ -374,7 +374,7 @@ win::nt_query_section(
         id,
         buffer,
         size,
-        &return_length
+        &ret_len
     );
 
     if (return_length) {
