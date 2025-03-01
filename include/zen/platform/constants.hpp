@@ -130,7 +130,7 @@ enum struct process_access : u32
     suspend_resume            = 0x0800,
     query_limited_information = 0x1000,
     set_limited_information   = 0x2000,
-    al                        = std::to_underlying(
+    full                      = std::to_underlying(
                                    base_access::standard_rights_required
                                    | base_access::synchronize
                                ) | 0xFFFF,
