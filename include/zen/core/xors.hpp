@@ -25,6 +25,7 @@
 #pragma once
 
 #include <zen/core/fnv.hpp>
+#include <array>
 
 namespace zen::detail {
 template<i32 N>
