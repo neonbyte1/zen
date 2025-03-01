@@ -275,7 +275,7 @@ enum struct system_info : u32
     last_index
 };
 
-template<bool X64 = detail::is_64_bit>
+template<bool X64 = true>
 struct system_process_information
 {
     u32                            next_entry_delta{};

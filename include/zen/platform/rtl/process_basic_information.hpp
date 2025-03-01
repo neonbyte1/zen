@@ -143,7 +143,7 @@ enum class process_info : u32
     effective_page_priority,                    // q: ULONG
     last_index,
 };
-template<bool X64 = detail::is_64_bit>
+template<bool X64 = true>
 struct process_basic_information
 {
     long      exit_status{};

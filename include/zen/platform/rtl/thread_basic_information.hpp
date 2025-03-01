@@ -74,7 +74,7 @@ enum struct thread_info : u32
     max_thread_info_class          // MaxThreadInfoClass
 };
 
-template<bool X64 = detail::is_64_bit>
+template<bool X64 = true>
 struct thread_basic_information
 {
     long_t         exit_status{};

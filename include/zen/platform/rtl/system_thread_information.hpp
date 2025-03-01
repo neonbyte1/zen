@@ -28,7 +28,7 @@
 #include <zen/platform/rtl/large_integer.hpp>
 
 namespace zen::rtl {
-template<bool X64 = detail::is_64_bit>
+template<bool X64 = true>
 struct system_thread_information
 {
     large_integer  kernel_time{};

@@ -63,7 +63,7 @@ struct ZEN_DECLSPEC_ALIGN(16) memory_basic_information64
     u32 alignment2{};
 };
 
-template<bool X64 = detail::is_64_bit>
+template<bool X64 = true>
 using memory_basic_information
     = std::conditional_t<
         X64,
