@@ -82,8 +82,8 @@ nt_query_information_process(
     const void*       process_handle,
     rtl::process_info id,
     void*             buffer,
-    szt               size,
-    szt*              return_length
+    u64               size,
+    u64*              return_length
 ) noexcept -> long_t;
 
 auto
@@ -91,16 +91,16 @@ nt_query_information_thread(
     const void*      thread_handle,
     rtl::thread_info id,
     void*            buffer,
-    szt              size,
-    szt*             return_length
+    u64              size,
+    u64*             return_length
 ) noexcept -> long_t;
 
 auto
 nt_query_system_information(
     rtl::system_info id,
     void*            buffer,
-    szt              size,
-    szt*             return_length
+    u64              size,
+    u64*             return_length
 ) noexcept -> long_t;
 
 auto
@@ -108,8 +108,8 @@ nt_query_object(
     const void*      handle,
     rtl::object_info id,
     void*            buffer,
-    szt              size,
-    szt*             return_length
+    u64              size,
+    u64*             return_length
 ) noexcept -> long_t;
 
 auto
@@ -117,8 +117,8 @@ nt_query_section(
     const void*       handle,
     rtl::section_info id,
     void*             buffer,
-    szt               size,
-    szt*              return_length
+    u64               size,
+    u64*              return_length
 ) noexcept -> long_t;
 
 auto
@@ -127,8 +127,8 @@ nt_query_virtual_memory(
     u64              base_address,
     rtl::memory_info id,
     void*            buffer,
-    szt              size,
-    szt*             return_length
+    u64              size,
+    u64*             return_length
 ) noexcept -> long_t;
 
 auto
@@ -136,7 +136,7 @@ nt_allocate_virtual_memory(
     const void*     handle,
     u64*            base_address,
     uptr            zero_bits,
-    szt             size,
+    u64             size,
     allocation_type allocation,
     page_protection protection
 ) noexcept -> long_t;
@@ -145,7 +145,7 @@ auto
 nt_free_virtual_memory(
     const void* handle,
     u64         base_address,
-    szt         size,
+    u64         size,
     u32         free_type
 ) noexcept -> long_t;
 
@@ -153,7 +153,7 @@ auto
 nt_protect_virtual_memory(
     const void*      handle,
     u64              base_address,
-    szt              size,
+    u64              size,
     page_protection  new_protection,
     page_protection* old_protection
 ) noexcept -> long_t;
@@ -163,8 +163,8 @@ nt_read_virtual_memory(
     const void* handle,
     u64         base_address,
     void*       buffer,
-    szt         size,
-    szt*        bytes_read
+    u64         size,
+    u64*        bytes_read
 ) noexcept -> long_t;
 
 auto
@@ -172,8 +172,8 @@ nt_write_virtual_memory(
     const void* handle,
     u64         base_address,
     const void* buffer,
-    szt         size,
-    szt*        bytes_written
+    u64         size,
+    u64*        bytes_written
 ) noexcept -> long_t;
 
 auto

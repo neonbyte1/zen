@@ -168,8 +168,8 @@ win::nt_query_information_process(
     const void* const       process_handle,
     const rtl::process_info id,
     void* const             buffer,
-    const szt               size,
-    szt* const              return_length
+    const u64               size,
+    u64* const              return_length
 ) noexcept -> long_t
 {
 #if defined(ZEN_TARGET_32_BIT)
@@ -183,7 +183,7 @@ win::nt_query_information_process(
     );
 
     if (return_length) {
-        *return_length = static_cast<szt>(ret_len);
+        *return_length = ret_len;
     }
 
     return status;
@@ -213,8 +213,8 @@ win::nt_query_information_thread(
     const void*  const     thread_handle,
     const rtl::thread_info id,
     void* const            buffer,
-    const szt              size,
-    szt* const             return_length
+    const u64              size,
+    u64* const             return_length
 ) noexcept -> long_t
 {
 #if defined(ZEN_TARGET_32_BIT)
@@ -228,7 +228,7 @@ win::nt_query_information_thread(
     );
 
     if (return_length) {
-        *return_length = static_cast<szt>(ret_len);
+        *return_length = ret_len;
     }
 
     return status;
@@ -257,8 +257,8 @@ auto
 win::nt_query_system_information(
     const rtl::system_info id,
     void* const            buffer,
-    const szt              size,
-    szt* const             return_length
+    const u64              size,
+    u64* const             return_length
 ) noexcept -> long_t
 {
 #if defined(ZEN_TARGET_32_BIT)
@@ -271,7 +271,7 @@ win::nt_query_system_information(
     );
 
     if (return_length) {
-        *return_length = static_cast<szt>(ret_len);
+        *return_length = ret_len;
     }
 
     return status;
@@ -300,8 +300,8 @@ win::nt_query_object(
     const void* const      handle,
     const rtl::object_info id,
     void* const            buffer,
-    const szt              size,
-    szt* const             return_length
+    const u64              size,
+    u64* const             return_length
 ) noexcept -> long_t
 {
 #if defined(ZEN_TARGET_32_BIT)
@@ -315,7 +315,7 @@ win::nt_query_object(
     );
 
     if (return_length) {
-        *return_length = static_cast<szt>(ret_len);
+        *return_length = ret_len;
     }
 
     return status;
@@ -345,8 +345,8 @@ win::nt_query_section(
     const void* const       handle,
     const rtl::section_info id,
     void* const             buffer,
-    const szt               size,
-    szt* const              return_length
+    const u64               size,
+    u64* const              return_length
 ) noexcept -> long_t
 {
 #if defined(ZEN_TARGET_32_BIT)
@@ -360,7 +360,7 @@ win::nt_query_section(
     );
 
     if (return_length) {
-        *return_length = static_cast<szt>(ret_len);
+        *return_length = ret_len;
     }
 
     return status;
@@ -391,8 +391,8 @@ win::nt_query_virtual_memory(
     const u64              base_address,
     const rtl::memory_info id,
     void* const            buffer,
-    const szt              size,
-    szt* const             return_length
+    const u64              size,
+    u64* const             return_length
 ) noexcept -> long_t
 {
 #if defined(ZEN_TARGET_32_BIT)
@@ -407,7 +407,7 @@ win::nt_query_virtual_memory(
     );
 
     if (return_length) {
-        *return_length = static_cast<szt>(ret_len);
+        *return_length = ret_len;
     }
 
     return status;
@@ -438,7 +438,7 @@ win::nt_allocate_virtual_memory(
     const void* const     handle,
     u64*                  base_address,
     const uptr            zero_bits,
-    const szt             size,
+    const u64             size,
     const allocation_type allocation,
     const page_protection protection
 ) noexcept -> long_t
@@ -473,7 +473,7 @@ auto
 win::nt_free_virtual_memory(
     const void* const handle,
     const u64         base_address,
-    const szt         size,
+    const u64         size,
     const u32         free_type
 ) noexcept -> long_t
 {
@@ -498,7 +498,7 @@ auto
 win::nt_protect_virtual_memory(
     const void* const      handle,
     const u64              base_address,
-    const szt              size,
+    const u64              size,
     const page_protection  new_protection,
     page_protection* const old_protection
 ) noexcept -> long_t
@@ -540,8 +540,8 @@ win::nt_read_virtual_memory(
     const void* const handle,
     const u64         base_address,
     void* const       buffer,
-    const szt         size,
-    szt* const        bytes_read
+    const u64         size,
+    u64* const        bytes_read
 ) noexcept -> long_t
 {
 #if defined(ZEN_TARGET_32_BIT)
@@ -585,8 +585,8 @@ win::nt_write_virtual_memory(
     const void* const handle,
     const u64         base_address,
     const void* const buffer,
-    const szt         size,
-    szt* const        bytes_written
+    const u64         size,
+    u64* const        bytes_written
 ) noexcept -> long_t
 {
 #if defined(ZEN_TARGET_32_BIT)
