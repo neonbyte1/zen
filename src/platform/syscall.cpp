@@ -60,7 +60,7 @@ using namespace zen;
         constexpr static auto name_hash = zen::fnv<>::hash<true>(FunctionName);                        \
         syscall_index = zen::win::get_syscall_id(zen::win::get_module_handle(module_hash), name_hash); \
         if (!syscall_index) {                                                                          \
-            return /*STATUS_INVALID_SYSTEM_SERVICE*/ static_cast<long>(0xC000001C);                    \
+            return /*STATUS_INVALID_SYSTEM_SERVICE*/ status_code{static_cast<long>(0xC000001C)};       \
         }                                                                                              \
     }
 
@@ -71,7 +71,7 @@ nt_open_process(
     const u32    pid,
     const u32    desired_access,
     void** const process_handle
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_SYSCALL_METADATA("ntdll.dll", "NtOpenProcess")
 
@@ -101,7 +101,7 @@ nt_create_thread_ex(
     const uptr                      size_of_stack_commit,
     const uptr                      size_of_stack_reserve,
     void* const                     bytes_buffer
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_SYSCALL_METADATA("ntdll.dll", "NtCreateThreadEx");
 
@@ -170,7 +170,7 @@ win::nt_query_information_process(
     void* const             buffer,
     const u64               size,
     u64* const              return_length
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     u64        ret_len{};
@@ -215,7 +215,7 @@ win::nt_query_information_thread(
     void* const            buffer,
     const u64              size,
     u64* const             return_length
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     u64        ret_len{};
@@ -259,7 +259,7 @@ win::nt_query_system_information(
     void* const            buffer,
     const u64              size,
     u64* const             return_length
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     u64        ret_len{};
@@ -302,7 +302,7 @@ win::nt_query_object(
     void* const            buffer,
     const u64              size,
     u64* const             return_length
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     u64        ret_len{};
@@ -347,7 +347,7 @@ win::nt_query_section(
     void* const             buffer,
     const u64               size,
     u64* const              return_length
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     u64        ret_len{};
@@ -393,7 +393,7 @@ win::nt_query_virtual_memory(
     void* const            buffer,
     const u64              size,
     u64* const             return_length
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     u64        ret_len{};
@@ -441,7 +441,7 @@ win::nt_allocate_virtual_memory(
     const u64             size,
     const allocation_type allocation,
     const page_protection protection
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     return x64_nt_allocate_virtual_memory(
@@ -475,7 +475,7 @@ win::nt_free_virtual_memory(
     const u64         base_address,
     const u64         size,
     const u32         free_type
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     return x64_nt_free_virtual_memory(
@@ -501,7 +501,7 @@ win::nt_protect_virtual_memory(
     const u64              size,
     const page_protection  new_protection,
     page_protection* const old_protection
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     return x64_nt_protect_virtual_memory(
@@ -542,7 +542,7 @@ win::nt_read_virtual_memory(
     void* const       buffer,
     const u64         size,
     u64* const        bytes_read
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     u64        bytes_processed{};
@@ -587,7 +587,7 @@ win::nt_write_virtual_memory(
     const void* const buffer,
     const u64         size,
     u64* const        bytes_written
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     u64        bytes_processed{};
@@ -629,7 +629,7 @@ auto
 win::nt_get_context_thread(
     const void* const handle,
     void* const       context
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     return x64_nt_get_context_thread(handle, context);
@@ -644,7 +644,7 @@ auto
 win::nt_set_context_thread(
     const void* const handle,
     const void* const context
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     return x64_nt_set_context_thread(handle, context);
@@ -658,7 +658,7 @@ win::nt_set_context_thread(
 auto
 win::nt_close(
     const void* const handle
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     return x64_nt_close(handle);
@@ -666,8 +666,8 @@ win::nt_close(
     ZEN_DECL_SYSCALL_METADATA("ntdll.dll", "NtClose")
 
     return is_valid_handle(handle)
-        ? syscall<long_t>(syscall_index, handle)
-        : 0;
+        ? syscall(syscall_index, handle)
+        : status_code{};
 #endif
 }
 
@@ -675,7 +675,7 @@ auto
 win::nt_open_process(
     const u32            pid,
     const process_access desired_access,
-    long_t* const        returned_status
+    status_code* const   returned_status
 ) noexcept -> void*
 {
 #if defined(ZEN_TARGET_32_BIT)
@@ -695,10 +695,10 @@ win::nt_open_process(
 auto
 win::nt_suspend_process(
     const void* process_handle
-) noexcept -> long_t
+) noexcept -> status_code
 {
     if (!is_valid_handle(process_handle)) {
-        return 0;
+        return status_code{};
     }
 
 #if defined(ZEN_TARGET_32_BIT)
@@ -713,10 +713,10 @@ win::nt_suspend_process(
 auto
 win::nt_resume_process(
     const void* process_handle
-) noexcept -> long_t
+) noexcept -> status_code
 {
     if (!is_valid_handle(process_handle)) {
-        return 0;
+        return status_code{};
     }
 
 #if defined(ZEN_TARGET_32_BIT)
@@ -732,7 +732,7 @@ auto
 win::nt_terminate_process(
     const void* const process_handle,
     const long_t      exit_status
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     return x64_nt_terminate_process(process_handle, exit_status);
@@ -813,10 +813,10 @@ auto
 win::nt_suspend_thread(
     const void* thread_handle,
     u32*        previous_suspend_count
-) noexcept -> long_t
+) noexcept -> status_code
 {
     if (!is_valid_handle(thread_handle)) {
-        return 0;
+        return status_code{};
     }
 
 #if defined(ZEN_TARGET_32_BIT)
@@ -839,10 +839,10 @@ auto
 win::nt_resume_thread(
     const void* thread_handle,
     u32*        suspend_count
-) noexcept -> long_t
+) noexcept -> status_code
 {
     if (!is_valid_handle(thread_handle)) {
-        return 0;
+        return status_code{};
     }
 
 #if defined(ZEN_TARGET_32_BIT)
@@ -859,10 +859,10 @@ win::nt_wait_for_single_object(
     const void* const handle,
     const bool        alertable,
     i64* const        time
-) noexcept -> long_t
+) noexcept -> status_code
 {
     if (!is_valid_handle(handle)) {
-        return 0;
+        return status_code{};
     }
 
 #if defined(ZEN_TARGET_32_BIT)
@@ -883,7 +883,7 @@ win::nt_create_section(
     const u32                       page_attributes,
     const u32                       section_attributes,
     void* const                     file_handle
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     rtl::object_attributes<true> x64_obj_attributes{};
@@ -946,7 +946,7 @@ win::nt_map_view_of_section(
     const rtl::section_inherit inherit_disposition,
     const allocation_type      allocation,
     const page_protection      protection
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     u64        base_addr{};
@@ -1021,7 +1021,7 @@ auto
 win::nt_unmap_view_of_section(
     const void* const process_handle,
     const void* const base_address
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     return x64_nt_unmap_view_of_section(
@@ -1039,7 +1039,7 @@ auto
 win::nt_unmap_view_of_section(
     const void* const process_handle,
     const u64         base_address
-) noexcept -> long_t
+) noexcept -> status_code
 {
     return nt_unmap_view_of_section(
         process_handle,
@@ -1051,7 +1051,7 @@ auto
 win::nt_extend_section(
     const void* const section_handle,
     const szt         size
-) noexcept -> long_t
+) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
     return x64_nt_extend_section(section_handle, size);

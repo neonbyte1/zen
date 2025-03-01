@@ -25,6 +25,7 @@
 #pragma once
 
 #include <zen/platform/constants.hpp>
+#include <zen/platform/common/status_code.hpp>
 #include <zen/platform/rtl/memory_basic_information.hpp>
 #include <zen/platform/rtl/process_basic_information.hpp>
 #include <zen/platform/rtl/thread_basic_information.hpp>
@@ -61,7 +62,7 @@ get_syscall_id(
     bool             lowercase = true
 ) noexcept -> u32;
 
-template<class Ret = long_t, class ...Args>
+template<class Ret = status_code, class ...Args>
 requires(sizeof(Ret) <= sizeof(void*))
 auto
 syscall(
@@ -70,10 +71,16 @@ syscall(
 ) noexcept -> Ret
 {
     const auto pfn = reinterpret_cast<
-        long_t(*)(u32, szt, detail::to_int64<Args>...)
+        std::conditional_t<std::is_same_v<status_code, Ret>, long_t, Ret>(*)(u32, szt, detail::to_int64<Args>...)
     >(detail::syscall_stub);
 
-    return pfn(id, sizeof...(Args), detail::to_int64<Args>(args)...);
+    const auto result = pfn(id, sizeof...(Args), detail::to_int64<Args>(args)...);
+
+    if constexpr (std::is_same_v<status_code, Ret>) {
+        return status_code{result};
+    } else {
+        return result;
+    }
 }
 #endif
 
@@ -84,7 +91,7 @@ nt_query_information_process(
     void*             buffer,
     u64               size,
     u64*              return_length
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_query_information_thread(
@@ -93,7 +100,7 @@ nt_query_information_thread(
     void*            buffer,
     u64              size,
     u64*             return_length
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_query_system_information(
@@ -101,7 +108,7 @@ nt_query_system_information(
     void*            buffer,
     u64              size,
     u64*             return_length
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_query_object(
@@ -110,7 +117,7 @@ nt_query_object(
     void*            buffer,
     u64              size,
     u64*             return_length
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_query_section(
@@ -119,7 +126,7 @@ nt_query_section(
     void*             buffer,
     u64               size,
     u64*              return_length
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_query_virtual_memory(
@@ -129,7 +136,7 @@ nt_query_virtual_memory(
     void*            buffer,
     u64              size,
     u64*             return_length
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_allocate_virtual_memory(
@@ -139,7 +146,7 @@ nt_allocate_virtual_memory(
     u64             size,
     allocation_type allocation,
     page_protection protection
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_free_virtual_memory(
@@ -147,7 +154,7 @@ nt_free_virtual_memory(
     u64         base_address,
     u64         size,
     u32         free_type
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_protect_virtual_memory(
@@ -156,7 +163,7 @@ nt_protect_virtual_memory(
     u64              size,
     page_protection  new_protection,
     page_protection* old_protection
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_read_virtual_memory(
@@ -165,7 +172,7 @@ nt_read_virtual_memory(
     void*       buffer,
     u64         size,
     u64*        bytes_read
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_write_virtual_memory(
@@ -174,47 +181,47 @@ nt_write_virtual_memory(
     const void* buffer,
     u64         size,
     u64*        bytes_written
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_get_context_thread(
     const void* handle,
     void*       context
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_set_context_thread(
     const void* handle,
     const void* context
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_close(
     const void* handle
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_open_process(
-    u32               pid,
-    process_access    desired_access,
-    long_t* returned_status = nullptr
+    u32            pid,
+    process_access desired_access,
+    status_code*   returned_status = nullptr
 ) noexcept -> void*;
 
 auto
 nt_suspend_process(
     const void* process_handle
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_resume_process(
     const void* process_handle
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_terminate_process(
     const void* process_handle,
     long_t      exit_status
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_create_thread_ex(
@@ -234,20 +241,20 @@ auto
 nt_suspend_thread(
     const void* thread_handle,
     u32*        previous_suspend_count
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_resume_thread(
     const void* thread_handle,
     u32*        suspend_count
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_wait_for_single_object(
     const void* handle,
     bool        alertable,
     i64*        time
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_create_section(
@@ -258,7 +265,7 @@ nt_create_section(
     u32                       page_attributes,
     u32                       section_attributes,
     void*                     file_handle
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_map_view_of_section(
@@ -272,7 +279,7 @@ nt_map_view_of_section(
     rtl::section_inherit inherit_disposition,
     allocation_type      allocation,
     page_protection      protection
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_map_view_of_section(
@@ -291,17 +298,17 @@ auto
 nt_unmap_view_of_section(
     const void* process_handle,
     const void* base_address
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_unmap_view_of_section(
     const void* process_handle,
     u64         base_address
-) noexcept -> long_t;
+) noexcept -> status_code;
 
 auto
 nt_extend_section(
     const void* section_handle,
     szt         size
-) noexcept -> long_t;
+) noexcept -> status_code;
 } //namespace zen::win

@@ -33,7 +33,7 @@ using namespace zen;
         constexpr static auto name_hash = zen::fnv<>::hash<true>(FunctionName);                            \
         function_address = win::x64_get_proc_address(win::x64_get_module_handle(module_hash), name_hash);  \
         if (!function_address) {                                                                           \
-            return /*STATUS_INVALID_SYSTEM_SERVICE*/ static_cast<long>(0xC000001C);                        \
+            return /*STATUS_INVALID_SYSTEM_SERVICE*/ status_code{static_cast<long>(0xC000001C)};           \
         }                                                                                                  \
     }
 
@@ -199,7 +199,7 @@ x64_nt_open_process(
     const u32    pid,
     const u32    desired_access,
     void** const process_handle
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtOpenProcess")
 
@@ -220,7 +220,7 @@ x64_nt_open_process(
 
     *process_handle = x64_to_handle(handle);
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
@@ -236,7 +236,7 @@ x64_nt_create_thread_ex(
     const u64                           size_of_stack_commit,
     const u64                           size_of_stack_reserve,
     void* const                         bytes_buffer
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtCreateThreadEx")
 
@@ -259,7 +259,7 @@ x64_nt_create_thread_ex(
 
     *output = x64_to_handle(handle);
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 }
 
@@ -616,7 +616,7 @@ win::x64_nt_query_information_process(
     void* const             buffer,
     const u64               size,
     u64* const              return_length
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtQueryInformationProcess")
 
@@ -635,7 +635,7 @@ win::x64_nt_query_information_process(
         *return_length = ret_len;
     }
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
@@ -645,7 +645,7 @@ win::x64_nt_query_information_thread(
     void* const            buffer,
     const u64              size,
     u64* const             return_length
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtQueryInformationThread")
 
@@ -664,7 +664,7 @@ win::x64_nt_query_information_thread(
         *return_length = ret_len;
     }
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
@@ -673,7 +673,7 @@ win::x64_nt_query_system_information(
     void* const            buffer,
     const u64              size,
     u64* const             return_length
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtQuerySystemInformation")
 
@@ -691,7 +691,7 @@ win::x64_nt_query_system_information(
         *return_length = ret_len;
     }
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
@@ -701,7 +701,7 @@ win::x64_nt_query_object(
     void* const            buffer,
     const u64              size,
     u64* const             return_length
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtQueryObject")
 
@@ -720,7 +720,7 @@ win::x64_nt_query_object(
         *return_length = ret_len;
     }
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
@@ -730,7 +730,7 @@ win::x64_nt_query_section(
     void* const             buffer,
     const u64               size,
     u64* const              return_length
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtQuerySection")
 
@@ -749,7 +749,7 @@ win::x64_nt_query_section(
         *return_length = ret_len;
     }
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
@@ -760,7 +760,7 @@ win::x64_nt_query_virtual_memory(
     void* const            buffer,
     const u64              size,
     u64* const             return_length
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtQueryVirtualMemory")
 
@@ -780,7 +780,7 @@ win::x64_nt_query_virtual_memory(
         *return_length = ret_len;
     }
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
@@ -791,7 +791,7 @@ win::x64_nt_allocate_virtual_memory(
     const u64             size,
     const allocation_type allocation,
     const page_protection protection
-) noexcept -> long_t
+) noexcept -> status_code
 {
 
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtAllocateVirtualMemory")
@@ -808,7 +808,7 @@ win::x64_nt_allocate_virtual_memory(
         static_cast<u64>(protection)
     );
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
@@ -817,7 +817,7 @@ win::x64_nt_free_virtual_memory(
     const u64         base_address,
     const u64         size,
     const u32         free_type
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtFreeVirtualMemory")
 
@@ -832,7 +832,7 @@ win::x64_nt_free_virtual_memory(
         static_cast<u64>(free_type)
     );
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
@@ -842,7 +842,7 @@ win::x64_nt_protect_virtual_memory(
     const u64              size,
     const page_protection  new_protection,
     page_protection* const old_protection
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtProtectVirtualMemory")
 
@@ -858,7 +858,7 @@ win::x64_nt_protect_virtual_memory(
         x64_from_ptr(old_protection)
     );
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
@@ -868,7 +868,7 @@ win::x64_nt_read_virtual_memory(
     void* const       buffer,
     const u64         size,
     u64* const        bytes_read
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtReadVirtualMemory")
 
@@ -887,7 +887,7 @@ win::x64_nt_read_virtual_memory(
         *bytes_read = bytes_processed;
     }
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
@@ -897,7 +897,7 @@ win::x64_nt_write_virtual_memory(
     const void* const buffer,
     const u64         size,
     u64* const        bytes_written
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtWriteVirtualMemory")
 
@@ -916,49 +916,49 @@ win::x64_nt_write_virtual_memory(
         *bytes_written = bytes_processed;
     }
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
 win::x64_nt_get_context_thread(
     const void* handle,
     void*       context
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtGetContextThread")
 
-    return static_cast<long_t>(
+    return status_code{
         x64_call(
             function_address,
             2,
             x64_from_handle(handle),
             x64_from_ptr(context)
         )
-    );
+    };
 }
 
 auto
 win::x64_nt_set_context_thread(
     const void* handle,
     const void* context
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtSetContextThread")
 
-    return static_cast<long_t>(
+    return status_code{
         x64_call(
             function_address,
             2,
             x64_from_handle(handle),
             x64_from_ptr(context)
         )
-    );
+    };
 }
 
 auto
 win::x64_nt_close(
     const void* const handle
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtClose")
 
@@ -966,14 +966,14 @@ win::x64_nt_close(
         ? static_cast<long_t>(x64_call(function_address, 1, x64_from_handle(handle)))
         : 0;
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
 win::x64_nt_open_process(
     const u32            pid,
     const process_access desired_access,
-    long_t* const        returnred_status
+    status_code* const   returnred_status
 ) noexcept -> void*
 {
     void*      handle{};
@@ -993,7 +993,7 @@ win::x64_nt_open_process(
 auto
 win::x64_nt_suspend_process(
     const void* const process_handle
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtSuspendProcess")
 
@@ -1001,13 +1001,13 @@ win::x64_nt_suspend_process(
         ? static_cast<long_t>(x64_call(function_address, 1, x64_from_handle(process_handle)))
         : 0;
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
 win::x64_nt_resume_process(
     const void* process_handle
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtResumeProcess")
 
@@ -1015,29 +1015,29 @@ win::x64_nt_resume_process(
         ? static_cast<long_t>(x64_call(function_address, 1, x64_from_handle(process_handle)))
         : 0;
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
 win::x64_nt_terminate_process(
     const void* const process_handle,
     const long_t      exit_status
-) noexcept -> long_t
+) noexcept -> status_code
 {
     if (!is_valid_handle(process_handle)) {
-        return 0;
+        return status_code{};
     }
 
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtTerminateProcess")
 
-    return static_cast<long_t>(
+    return status_code{
         x64_call(
             function_address,
             2,
             x64_from_handle(process_handle),
             static_cast<u64>(exit_status)
         )
-    );
+    };
 }
 
 auto
@@ -1077,7 +1077,7 @@ auto
 win::x64_nt_suspend_thread(
     const void* const thread_handle,
     u32* const        previous_suspend_count
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtSuspendThread")
 
@@ -1090,25 +1090,25 @@ win::x64_nt_suspend_thread(
         *previous_suspend_count = count;
     }
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
 win::x64_nt_resume_thread(
     const void* const thread_handle,
     u32* const        suspend_count
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtResumeThread")
 
-    return static_cast<long_t>(
+    return status_code{
         x64_call(
             function_address,
             2,
             x64_from_handle(thread_handle),
             x64_from_ptr(suspend_count)
         )
-    );
+    };
 }
 
 auto
@@ -1116,11 +1116,11 @@ win::x64_nt_wait_for_single_object(
     const void* const handle,
     const bool        alertable,
     i64*  const       time
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtWaitForSingleObject")
 
-    return static_cast<long_t>(
+    return status_code{
         x64_call(
             function_address,
             3,
@@ -1128,7 +1128,7 @@ win::x64_nt_wait_for_single_object(
             static_cast<u64>(alertable),
             x64_from_ptr(time)
         )
-    );
+    };
 }
 
 auto
@@ -1140,7 +1140,7 @@ win::x64_nt_create_section(
     const u32                           page_attributes,
     const u32                           section_attributes,
     void* const                         file_handle
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtCreateSection")
 
@@ -1159,7 +1159,7 @@ win::x64_nt_create_section(
 
     *section_handle = x64_to_handle(handle);
 
-    return static_cast<long_t>(status);
+    return status_code{status};
 }
 
 auto
@@ -1174,11 +1174,11 @@ win::x64_nt_map_view_of_section(
     const rtl::section_inherit inherit_disposition,
     const allocation_type      allocation,
     const page_protection      protection
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtMapViewOfSection")
 
-    return static_cast<long_t>(
+    return status_code{
         x64_call(
             function_address,
             10,
@@ -1193,7 +1193,7 @@ win::x64_nt_map_view_of_section(
             static_cast<u64>(allocation),
             static_cast<u64>(protection)
         )
-    );
+    };
 }
 
 auto
@@ -1231,35 +1231,35 @@ auto
 win::x64_nt_unmap_view_of_section(
     const void* const process_handle,
     const u64         base_address
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtUnmapViewOfSection")
 
-    return static_cast<long_t>(
+    return status_code{
         x64_call(
             function_address,
             2,
             x64_from_handle(process_handle),
             base_address
         )
-    );
+    };
 }
 
 auto
 win::x64_nt_extend_section(
     const void* const section_handle,
     const u64         size
-) noexcept -> long_t
+) noexcept -> status_code
 {
     ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtExtendSection")
 
-    return static_cast<long_t>(
+    return status_code{
         x64_call(
             function_address,
             2,
             x64_from_handle(section_handle),
             size
         )
-    );
+    };
 }
 #endif //ZEN_OS_32_BIT
