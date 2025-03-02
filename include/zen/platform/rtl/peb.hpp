@@ -97,14 +97,14 @@ public:
 
     NODISCARD
     auto
-    params() noexcept -> rtl_user_process_parameters<X64>*
+    params() noexcept -> user_process_parameters<X64>*
     {
-        return reinterpret_cast<rtl_user_process_parameters<X64>*>(process_parameters);
+        return reinterpret_cast<user_process_parameters<X64>*>(process_parameters);
     }
 
     NODISCARD
     auto
-    params() const noexcept -> const rtl_user_process_parameters<X64>*
+    params() const noexcept -> const user_process_parameters<X64>*
     {
         return const_cast<peb*>(this)->params();
     }

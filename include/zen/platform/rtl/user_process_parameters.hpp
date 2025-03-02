@@ -28,41 +28,41 @@
 
 namespace zen::rtl {
 template<bool X64 = detail::is_64_bit>
-struct rtl_current_directory
+struct current_directory
 {
     unicode_string<X64> dos_path{};
     va_t<X64>           handle{};
 };
 
 template<bool X64 = detail::is_64_bit>
-struct rtl_user_process_parameters
+struct user_process_parameters
 {
-    u32                        maximum_length{};
-    u32                        length{};
-    u32                        flags{};
-    u32                        debug_flags{};
-    va_t<X64>                  console_handle{};
-    u32                        console_flags{};
-    va_t<X64>                  standard_input{};
-    va_t<X64>                  standard_output{};
-    va_t<X64>                  standard_error{};
-    rtl_current_directory<X64> current_directory{};
-    unicode_string<X64>        dll_path{};
-    unicode_string<X64>        image_path_name{};
-    unicode_string<X64>        command_line{};
-    va_t<X64>                  environment{};
-    u32                        starting_x{};
-    u32                        starting_y{};
-    u32                        count_x{};
-    u32                        count_y{};
-    u32                        count_chars_x{};
-    u32                        count_chars_y{};
-    u32                        fill_attribute{};
-    u32                        window_flags{};
-    u32                        show_window_flags{};
-    unicode_string<X64>        window_title{};
-    unicode_string<X64>        desktop_info{};
-    unicode_string<X64>        shell_info{};
-    unicode_string<X64>        runtime_data{};
+    u32                    maximum_length{};
+    u32                    length{};
+    u32                    flags{};
+    u32                    debug_flags{};
+    va_t<X64>              console_handle{};
+    u32                    console_flags{};
+    va_t<X64>              standard_input{};
+    va_t<X64>              standard_output{};
+    va_t<X64>              standard_error{};
+    current_directory<X64> current_directory{};
+    unicode_string<X64>    dll_path{};
+    unicode_string<X64>    image_path_name{};
+    unicode_string<X64>    command_line{};
+    va_t<X64>              environment{};
+    u32                    starting_x{};
+    u32                    starting_y{};
+    u32                    count_x{};
+    u32                    count_y{};
+    u32                    count_chars_x{};
+    u32                    count_chars_y{};
+    u32                    fill_attribute{};
+    u32                    window_flags{};
+    u32                    show_window_flags{};
+    unicode_string<X64>    window_title{};
+    unicode_string<X64>    desktop_info{};
+    unicode_string<X64>    shell_info{};
+    unicode_string<X64>    runtime_data{};
 };
 } //namespace zen::rtl
