@@ -25,6 +25,7 @@
 #pragma once
 
 #include <zen/core/xors.hpp>
+#include <functional>
 
 namespace zen::win {
 NODISCARD
@@ -34,6 +35,11 @@ get_peb() noexcept -> uptr;
 NODISCARD
 auto
 get_pid() noexcept -> u32;
+
+auto
+enum_modules(
+    const std::function<bool(std::wstring_view, va_t<>)>& callback
+) noexcept -> void;
 
 NODISCARD
 auto

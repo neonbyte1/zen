@@ -179,31 +179,10 @@ win::get_peb() noexcept -> uptr
 }
 
 auto
-win::get_module_handle(
-    const u32  name,
-    const bool lowercase
-) noexcept -> uptr
+win::enum_modules(
+    const std::function<bool(std::wstring_view, va_t<>)>& callback
+) noexcept -> void
 {
-    const auto validate_entry = [&](
-        const rtl::ldr_data_table_entry<>* const entry
-    ) noexcept -> bool
-    {
-        if (!entry->base_dll_name.buffer()) {
-            return false;
-        }
-
-        if (!fnv<>::valid(name)) {
-            return true;
-        }
-
-        const auto hash = lowercase
-            ? fnv<>::get<true>(entry->base_dll_name.get())
-            : fnv<>::get(entry->base_dll_name.get());
-
-        return hash == name;
-    };
-
-
     const auto* const peb = reinterpret_cast<const rtl::peb<>*>(get_peb());
 
     if (const auto* const ldr = peb->loader()) {
@@ -220,17 +199,45 @@ win::get_module_handle(
                     in_load_order_links
                 );
 
-            if (validate_entry(current)) {
-                return current->dll_base;
+            if (callback(current->base_dll_name.get(), current->dll_base)) {
+                break;
             }
 
             current_entry = reinterpret_cast<const rtl::list_entry<>*>(current)->next;
         }
     }
+}
+
+auto
+win::get_module_handle(
+    const u32  name,
+    const bool lowercase
+) noexcept -> uptr
+{
+    uptr handle{};
+
+    enum_modules(
+        [&](const std::wstring_view module_name, const va_t<> module_base) noexcept -> bool
+        {
+            if (!fnv<>::valid(name)) {
+                handle = module_base;
+            } else {
+                const auto hash = lowercase
+                    ? fnv<>::get<true>(module_name)
+                    : fnv<>::get(module_name);
+
+                if (hash == name) {
+                    handle = module_base;
+                }
+            }
+
+            return handle > 0;
+        }
+    );
 
     /** @todo: ApiSchemaSet support */
 
-    return 0;
+    return handle;
 }
 
 auto
