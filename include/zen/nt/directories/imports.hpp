@@ -71,6 +71,25 @@ public:
     NODISCARD
     constexpr
     auto
+    rva_original_first_thunk() const noexcept -> u32
+    {
+        return bit::little(ctx_.rva_original_first_thunk);
+    }
+
+    constexpr
+    auto
+    rva_original_first_thunk(
+        const u32 val
+    ) noexcept -> import_directory&
+    {
+        ctx_.rva_original_first_thunk = bit::little(val);
+
+        return *this;
+    }
+
+    NODISCARD
+    constexpr
+    auto
     timedate_stamp() const noexcept -> u32
     {
         return bit::little(ctx_.timedate_stamp);
