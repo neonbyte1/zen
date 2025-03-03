@@ -63,7 +63,7 @@ public:
     auto
     name() noexcept -> char*
     {
-        return &ctx_.name[0];
+        return ctx_.name;
     }
 
     NODISCARD
@@ -97,12 +97,12 @@ class image_thunk_data
         u64 is_ordinal : 1;
     };
 
-    struct thunk_data
+    union thunk_data
     {
         using meta_type = std::conditional_t<X64, thunk_data64, thunk_data32>;
 
-        address_type value{};
-        meta_type    meta{};
+        address_type value;
+        meta_type    meta;
     };
 
     union native
@@ -177,9 +177,28 @@ public:
     NODISCARD
     constexpr
     auto
-    address_of_data() const noexcept -> typename thunk_data::meta_type
+    address_of_data() const noexcept -> address_type
     {
-        return thunk_data{.value = bit::little(ctx_.address_of_data.value)};
+        return bit::little(ctx_.address_of_data.value);
+    }
+
+    constexpr
+    auto
+    address_of_data(
+        const address_type val
+    ) noexcept -> image_thunk_data&
+    {
+        ctx_.address_of_data.value = bit::little(val);
+
+        return *this;
+    }
+
+    NODISCARD
+    constexpr
+    auto
+    metadata() const noexcept -> typename thunk_data::meta_type
+    {
+        return thunk_data{.value = bit::little(ctx_.address_of_data.value)}.meta;
     }
 
     NODISCARD
@@ -187,7 +206,7 @@ public:
     auto
     ordinal() const noexcept -> u16
     {
-        return static_cast<u16>(address_of_data().ordinal);
+        return static_cast<u16>(metadata().ordinal);
     }
 
     NODISCARD
@@ -195,7 +214,7 @@ public:
     auto
     is_ordinal() const noexcept -> bool
     {
-        return address_of_data().is_ordinal > 0;
+        return metadata().is_ordinal > 0;
     }
 
 private:
@@ -330,4 +349,3 @@ private:
     native ctx_{};
 };
 ZEN_RESTORE_ALIGNMENT() //namespace zen::win
-
