@@ -52,7 +52,7 @@ find_proc_address(
         return 0;
     }
 
-    const auto* const exp_dir = dll->rva_to_ptr<win::export_directory>(data_dir->rva());
+    const auto* const exp_dir = reinterpret_cast<win::export_directory*>(handle + data_dir->rva());
 
     if (!exp_dir) {
         return 0;
@@ -66,9 +66,9 @@ find_proc_address(
     }
 
     const auto        delta     = reinterpret_cast<const u8*>(exp_dir) - data_dir->rva();
-    const auto* const names     = dll->rva_to_ptr<u32>(exp_dir->rva_names());
-    const auto* const functions = dll->rva_to_ptr<u32>(exp_dir->rva_functions());
-    const auto* const ordinals  = dll->rva_to_ptr<u16>(exp_dir->rva_name_ordinals());
+    const auto* const names     = reinterpret_cast<const u32*>(handle + exp_dir->rva_names());
+    const auto* const functions = reinterpret_cast<const u32*>(handle + exp_dir->rva_functions());
+    const auto* const ordinals  = reinterpret_cast<const u16*>(handle + exp_dir->rva_name_ordinals());
 
     for (u32 i{}; i < num_functions; ++i) {
         const auto ordinal = proc_ordinal != -1
