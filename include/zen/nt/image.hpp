@@ -26,7 +26,60 @@
 
 #include <zen/nt/dos_header.hpp>
 
+#if defined(ZEN_IMAGE_IMPORT_INFO_COLLECTION)
+#   include <zen/nt/directories/imports.hpp>
+#   include <zen/nt/directories/iat.hpp>
+#   include <unordered_map>
+#endif //ZEN_IMAGE_IMPORT_INFO_COLLECTION
+
+#if defined(ZEN_IMAGE_EXPORT_INFO_COLLECTION)
+#   include <zen/nt/directories/exports.hpp>
+#   include <vector>
+#endif //ZEN_IMAGE_EXPORT_INFO_COLLECTION
+
 ZEN_WIN32_ALIGNMENT(zen::win)
+#if defined(ZEN_IMAGE_IMPORT_INFO_COLLECTION)
+struct import_info
+{
+    constexpr
+        explicit
+        import_info(
+            const u32 index
+        ) noexcept
+        : index{ index }
+    {}
+
+    std::string name;
+    u32         index{};
+    u16         ordinal{};
+};
+#endif //ZEN_IMAGE_IMPORT_INFO_COLLECTION
+
+#if defined(ZEN_IMAGE_EXPORT_INFO_COLLECTION)
+struct export_info
+{
+    struct forward_info
+    {
+        std::string library;
+        std::string function;
+    };
+
+    std::string  name;
+    u32          rva{};
+    u16          ordinal{};
+    forward_info forward{};
+
+    NODISCARD
+        constexpr
+        auto
+        forwarded() const noexcept -> bool
+    {
+        return !forward.library.empty()
+            && !forward.function.empty();
+    }
+};
+#endif //ZEN_IMAGE_EXPORT_INFO_COLLECTION
+
 template<bool X64 = detail::is_64_bit>
 class image
 {
@@ -366,6 +419,119 @@ public:
     {
         return const_cast<image*>(this)->template raw_to_ptr<T>(offset, length);
     }
+
+#if defined(ZEN_IMAGE_IMPORT_INFO_COLLECTION)
+    NODISCARD
+    ZEN_CXX23_CONSTEXPR
+    auto
+    collect_imports() const -> std::unordered_map<std::string, std::vector<import_info>>
+    {
+        const auto* const data_directory = directory(win::directory::imports);
+
+        if (!data_directory) {
+            return {};
+        }
+
+        const auto* import_table = rva_to_ptr<import_directory>(data_directory->rva());
+
+        std::unordered_map<std::string, std::vector<import_info>> result;
+
+        for (
+            u32 prev_name{};
+            prev_name < import_table->rva_name();
+            prev_name = import_table->rva_name(), ++import_table
+        ) {
+            const auto* const module_name_raw
+                = rva_to_ptr<const char>(import_table->rva_name());
+
+            if (!module_name_raw || *module_name_raw == 0) {
+                continue;
+            }
+
+            const auto* entry = rva_to_ptr<image_thunk_data<X64>>(import_table->rva_original_first_thunk());
+            std::vector<import_info> module_info;
+
+            for (va_t<X64> i{}; i < entry->address(); i += sizeof(va_t<X64>), ++entry) {
+                const auto* const import_by_name
+                    = rva_to_ptr<image_named_import>(entry->address());
+
+                import_info info{static_cast<u32>(i / sizeof(va_t<X64>))};
+
+                if (!entry->is_ordinal() && import_by_name->name()[0]) {
+                    info.name.assign(import_by_name->name());
+                } else {
+                    info.ordinal = entry->ordinal();
+                }
+
+                module_info.emplace_back(std::move(info));
+            }
+
+            result.insert(std::make_pair(module_name_raw, std::move(module_info)));
+        }
+
+        return result;
+    }
+#endif //ZEN_IMAGE_IMPORT_INFO_COLLECTION
+
+#if defined(ZEN_IMAGE_EXPORT_INFO_COLLECTION)
+    NODISCARD
+    ZEN_CXX23_CONSTEXPR
+    auto
+    collect_exports() const -> std::vector<export_info>
+    {
+        std::vector<export_info> result{};
+        const auto* const        data_directory
+            = directory(win::directory::exports);
+
+        if (data_directory) {
+            const auto* const export_dir
+                = rva_to_ptr<export_directory>(data_directory->rva());
+
+            const auto num_functions = export_dir->num_functions();
+            const auto num_names     = export_dir->num_names();
+
+            if (num_functions > 0) {
+                const auto* delta     = reinterpret_cast<const u8*>(export_dir) - data_directory->rva();
+                const auto  names     = rva_to_ptr<u32>(export_dir->rva_names());
+                const auto  functions = rva_to_ptr<u32>(export_dir->rva_functions());
+                const auto  ordinals  = rva_to_ptr<u16>(export_dir->rva_name_ordinals());
+
+                for (u32 i{}; i < num_functions; ++i) {
+                    export_info info{};
+                    const auto  ordinal = ordinals[i];
+
+                    if (i < num_names) {
+                        info.name.assign(reinterpret_cast<const char*>(delta + names[i]));
+                    }
+
+                    const auto function_pointer = delta + functions[ordinal];
+                    const auto directory_begin  = delta + data_directory->rva();
+                    const auto directory_end    = directory_begin + data_directory->size();
+
+                    if (function_pointer >= directory_begin && function_pointer <= directory_end) {
+                        // e.g. "api-ms-win-core-processthreads-l1-1-6.SetProcessDynamicEnforcedCetCompatibleRanges"
+                        const auto* const      forwarded_name_raw = reinterpret_cast<const char*>(function_pointer);
+                        const std::string_view forwarded_name{ forwarded_name_raw };
+                        const auto             dot_pos{ forwarded_name.find('.') };
+
+                        if (dot_pos == std::string_view::npos) {
+                            continue;
+                        }
+
+                        info.forward.library = forwarded_name.substr(0, dot_pos);
+                        info.forward.function = forwarded_name.substr(dot_pos + 1);
+                    } else {
+                        info.rva = functions[ordinal];
+                    }
+
+                    result.push_back(std::move(info));
+                }
+            }
+        }
+
+        return result;
+    }
+#endif //ZEN_IMAGE_EXPORT_INFO_COLLECTION
 
     NODISCARD
     ZEN_CXX23_CONSTEXPR
