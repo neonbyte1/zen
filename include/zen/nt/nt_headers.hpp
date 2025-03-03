@@ -130,10 +130,17 @@ public:
     sections() const noexcept -> std::conditional_t<
         Iterator,
         iterator<const coff::section_header>,
-        coff::section_header*
+        const coff::section_header*
     >
     {
-        return const_cast<nt_headers*>(this)->sections<Iterator>();
+        if constexpr (Iterator) {
+            return {sections<false>(), file_hdr().num_sections()};
+        } else {
+            return reinterpret_cast<const coff::section_header*>(
+                reinterpret_cast<const u8*>(&optional_hdr())
+                    + file_hdr().size_optional_header()
+            );
+        }
     }
 
     NODISCARD
