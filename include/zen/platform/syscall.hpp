@@ -34,6 +34,7 @@
 #include <zen/platform/rtl/object_basic_information.hpp>
 #include <zen/platform/rtl/object_attributes.hpp>
 #include <zen/platform/rtl/io_status_block.hpp>
+#include <zen/platform/rtl/large_integer.hpp>
 
 #if defined(ZEN_TARGET_64_BIT)
 namespace zen::detail {
@@ -271,11 +272,11 @@ auto
 nt_map_view_of_section(
     const void*          section_handle,
     const void*          process_handle,
-    void**               base_address,
+    u64*                 base_address,
     uptr                 zero_bits,
     szt                  commit_size,
-    i64*                 section_offset,
-    szt*                 view_size,
+    rtl::large_integer*  section_offset,
+    rtl::large_integer*  view_size,
     rtl::section_inherit inherit_disposition,
     allocation_type      allocation,
     page_protection      protection
@@ -285,13 +286,13 @@ auto
 nt_map_view_of_section(
     const void*          section_handle,
     const void*          process_handle,
-    szt                  size,
+    u64                  size,
     allocation_type      allocation,
     page_protection      protection,
     rtl::section_inherit inherit_disposition,
     uptr                 zero_bits = 0,
     szt                  commit_size = 0,
-    i64*                 section_offset = nullptr
+    rtl::large_integer*  section_offset = nullptr
 ) noexcept -> u64;
 
 auto

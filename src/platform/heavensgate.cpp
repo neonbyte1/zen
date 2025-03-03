@@ -1169,8 +1169,8 @@ win::x64_nt_map_view_of_section(
     u64* const                 base_address,
     const u64                  zero_bits,
     const u64                  commit_size,
-    i64* const                 section_offset,
-    u64* const                 view_size,
+    rtl::large_integer* const  section_offset,
+    rtl::large_integer* const  view_size,
     const rtl::section_inherit inherit_disposition,
     const allocation_type      allocation,
     const page_protection      protection
@@ -1200,16 +1200,19 @@ auto
 win::x64_nt_map_view_of_section(
     const void* const          section_handle,
     const void* const          process_handle,
-    u64                        size,
+    const u64                  size,
     const allocation_type      allocation,
     const page_protection      protection,
     const rtl::section_inherit inherit_disposition,
     const u64                  zero_bits,
     const u64                  commit_size,
-    i64* const                 section_offset
+    rtl::large_integer* const  section_offset
 ) noexcept -> u64
 {
-    u64 base_address{};
+    u64                base_address{};
+    rtl::large_integer view_size;
+
+    view_size.quad_part = static_cast<i64>(size);
 
     x64_nt_map_view_of_section(
         section_handle,
@@ -1218,7 +1221,7 @@ win::x64_nt_map_view_of_section(
         zero_bits,
         commit_size,
         section_offset,
-        &size,
+        &view_size,
         inherit_disposition,
         allocation,
         protection

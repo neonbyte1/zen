@@ -28,6 +28,7 @@
 #include <zen/platform/rtl/section_basic_information.hpp>
 #include <zen/platform/rtl/io_status_block.hpp>
 #include <zen/platform/rtl/object_attributes.hpp>
+#include <zen/platform/rtl/large_integer.hpp>
 
 #if !defined(ZEN_OS_WINDOWS)
 #   pragma warning "You're including the HeavensGate header which is only for Windows"
@@ -449,8 +450,8 @@ x64_nt_map_view_of_section(
     u64*                 base_address,
     u64                  zero_bits,
     u64                  commit_size,
-    i64*                 section_offset,
-    u64*                 view_size,
+    rtl::large_integer*  section_offset,
+    rtl::large_integer*  view_size,
     rtl::section_inherit inherit_disposition,
     allocation_type      allocation,
     page_protection      protection
@@ -466,7 +467,7 @@ x64_nt_map_view_of_section(
     rtl::section_inherit inherit_disposition,
     u64                  zero_bits = 0,
     u64                  commit_size = 0,
-    i64*                 section_offset = nullptr
+    rtl::large_integer*  section_offset = nullptr
 ) noexcept -> u64;
 
 auto

@@ -938,35 +938,29 @@ auto
 win::nt_map_view_of_section(
     const void* const          section_handle,
     const void* const          process_handle,
-    void** const               base_address,
+    u64* const                 base_address,
     const uptr                 zero_bits,
     const szt                  commit_size,
-    i64* const                 section_offset,
-    szt* const                 view_size,
+    rtl::large_integer* const  section_offset,
+    rtl::large_integer* const  view_size,
     const rtl::section_inherit inherit_disposition,
     const allocation_type      allocation,
     const page_protection      protection
 ) noexcept -> status_code
 {
 #if defined(ZEN_TARGET_32_BIT)
-    u64        base_addr{};
-    auto       size   = static_cast<u64>(view_size ? *view_size : 0);
-    const auto status = x64_nt_map_view_of_section(
+    return x64_nt_map_view_of_section(
         section_handle,
         process_handle,
-        &base_addr,
+        base_address,
         zero_bits,
         commit_size,
         section_offset,
-        &size,
+        view_size,
         inherit_disposition,
         allocation,
         protection
     );
-
-    *base_address = reinterpret_cast<void*>(base_address);
-
-    return status;
 #else
     ZEN_DECL_SYSCALL_METADATA("ntdll.dll", "NtMapViewOfSection")
 
@@ -990,16 +984,19 @@ auto
 win::nt_map_view_of_section(
     const void* const          section_handle,
     const void* const          process_handle,
-    szt                        size,
+    const u64                  size,
     const allocation_type      allocation,
     const page_protection      protection,
     const rtl::section_inherit inherit_disposition,
     const uptr                 zero_bits,
     const szt                  commit_size,
-    i64* const                 section_offset
+    rtl::large_integer* const  section_offset
 ) noexcept -> u64
 {
-    void* base_address{};
+    u64                base_address{};
+    rtl::large_integer view_size;
+
+    view_size.quad_part = static_cast<i64>(size);
 
     nt_map_view_of_section(
         section_handle,
@@ -1008,13 +1005,13 @@ win::nt_map_view_of_section(
         zero_bits,
         commit_size,
         section_offset,
-        &size,
+        &view_size,
         inherit_disposition,
         allocation,
         protection
     );
 
-    return reinterpret_cast<uptr>(base_address);
+    return base_address;
 }
 
 auto
