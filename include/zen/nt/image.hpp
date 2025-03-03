@@ -246,13 +246,6 @@ public:
         const szt length = 1
     ) noexcept -> T*
     {
-#if defined(_MSC_VER) || defined(_WIN32) || defined(_WIN64)
-        (void)length;
-
-        return reinterpret_cast<T*>(
-            reinterpret_cast<std::byte*>(&dos_hdr_) + rva
-        );
-#else
         const auto* const scn = rva_to_section(rva);
 
         if (!scn) {
@@ -281,7 +274,6 @@ public:
             + scn->ptr_raw_data()
             + offset
         );
-#endif
     }
 
     template<class T = u8>
