@@ -460,7 +460,7 @@ win::nt_allocate_virtual_memory(
     return syscall(
         syscall_index,
         handle,
-        &base_address,
+        base_address,
         zero_bits,
         &region_size,
         allocation,
@@ -870,7 +870,7 @@ win::nt_wait_for_single_object(
 #else
     ZEN_DECL_SYSCALL_METADATA("ntdll.dll", "NtWaitForSingleObject")
 
-    return syscall(syscall_index, alertable, time);
+    return syscall(syscall_index, handle, alertable, time);
 #endif
 }
 
