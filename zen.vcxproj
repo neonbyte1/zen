@@ -169,7 +169,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZEN_IMAGE_RELOC_INFO_COLLECTION;ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -184,7 +184,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZEN_IMAGE_RELOC_INFO_COLLECTION;ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -200,7 +200,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZEN_IMAGE_RELOC_INFO_COLLECTION;ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -219,7 +219,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZEN_IMAGE_RELOC_INFO_COLLECTION;ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -236,7 +236,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZEN_IMAGE_RELOC_INFO_COLLECTION;ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -251,7 +251,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZEN_IMAGE_RELOC_INFO_COLLECTION;ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -267,7 +267,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZEN_IMAGE_RELOC_INFO_COLLECTION;ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -286,7 +286,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZEN_IMAGE_RELOC_INFO_COLLECTION;ZEN_IMAGE_IMPORT_INFO_COLLECTION;ZEN_IMAGE_EXPORT_INFO_COLLECTION;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -326,6 +326,7 @@
     <ClInclude Include="include\zen\nt\optional_header.hpp" />
     <ClInclude Include="include\zen\platform\common\com_ptr.hpp" />
     <ClInclude Include="include\zen\platform\common\handle_guard.hpp" />
+    <ClInclude Include="include\zen\platform\common\memory_section.hpp" />
     <ClInclude Include="include\zen\platform\common\status_code.hpp" />
     <ClInclude Include="include\zen\platform\heavensgate.hpp" />
     <ClInclude Include="include\zen\platform\rtl\client_id.hpp" />
@@ -359,6 +360,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseMD|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="src\platform\memory_section.cpp" />
     <ClCompile Include="src\platform\syscall.cpp" />
     <ClCompile Include="src\platform\windows.cpp" />
   </ItemGroup>
