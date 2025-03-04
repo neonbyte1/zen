@@ -37,6 +37,10 @@
 #   include <vector>
 #endif //ZEN_IMAGE_EXPORT_INFO_COLLECTION
 
+#if defined(ZEN_IMAGE_RELOC_INFO_COLLECTION)
+#   include <zen/nt/directories/relocs.hpp>
+#endif //ZEN_IMAGE_RELOC_INFO_COLLECTION
+
 ZEN_WIN32_ALIGNMENT(zen::win)
 #if defined(ZEN_IMAGE_IMPORT_INFO_COLLECTION)
 struct import_info
@@ -52,6 +56,7 @@ struct import_info
     std::string name;
     u32         index{};
     u16         ordinal{};
+    u64         rva{};
 };
 #endif //ZEN_IMAGE_IMPORT_INFO_COLLECTION
 
@@ -79,6 +84,15 @@ struct export_info
     }
 };
 #endif //ZEN_IMAGE_EXPORT_INFO_COLLECTION
+
+#if defined(ZEN_IMAGE_RELOC_INFO_COLLECTION)
+struct reloc_info
+{
+    u32        base_rva{};
+    u16        offset{};
+    reloc_type type{};
+};
+#endif //ZEN_IMAGE_RELOC_INFO_COLLECTION
 
 template<bool X64 = detail::is_64_bit>
 class image
@@ -457,6 +471,8 @@ public:
 
                 import_info info{static_cast<u32>(i / sizeof(va_t<X64>))};
 
+                info.rva = i + import_table->rva_first_thunk();
+
                 if (!entry->is_ordinal() && import_by_name->name()[0]) {
                     info.name.assign(import_by_name->name());
                 } else {
@@ -532,6 +548,36 @@ public:
         return result;
     }
 #endif //ZEN_IMAGE_EXPORT_INFO_COLLECTION
+
+#if defined(ZEN_IMAGE_RELOC_INFO_COLLECTION)
+    NODISCARD
+    auto
+    collect_relocations() const noexcept -> std::vector<reloc_info>
+    {
+        std::vector<reloc_info> result;
+
+        if (const auto* const data_directory = directory(win::directory::basereloc)) {
+            const auto* const reloc_dir = rva_to_ptr<reloc_directory>(data_directory->rva());
+            const auto* const reloc_end
+                = reinterpret_cast<const reloc_directory*>(
+                    reinterpret_cast<const u8*>(reloc_dir)
+                    + data_directory->size()
+                );
+
+            for (
+                const auto* reloc = &reloc_dir->first_block;
+                reloc < &reloc_end->first_block;
+                reloc = reloc->next()
+            ) {
+                for (const auto* item = reloc->begin(); item != reloc->end(); ++item) {
+                    result.emplace_back(reloc->base_rva(), item->offset(), item->type());
+                }
+            }
+        }
+
+        return result;
+    }
+#endif //ZEN_IMAGE_RELOC_INFO_COLLECTION
 
     NODISCARD
     ZEN_CXX23_CONSTEXPR
