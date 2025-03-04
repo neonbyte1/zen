@@ -32,5 +32,43 @@ struct client_id
 {
     va_t<X64> unique_process{};
     va_t<X64> unique_thread{};
+
+    NODISCARD
+    constexpr
+    auto
+    pid() const noexcept -> u32
+    {
+        return static_cast<u32>(unique_process);
+    }
+
+    constexpr
+    auto
+    pid(
+        const va_t<X64> value
+    ) noexcept -> client_id&
+    {
+        unique_process = value;
+
+        return *this;
+    }
+
+    NODISCARD
+    constexpr
+    auto
+    tid() const noexcept -> u32
+    {
+        return static_cast<u32>(unique_thread);
+    }
+
+    constexpr
+    auto
+    tid(
+        const va_t<X64> value
+    ) noexcept -> client_id&
+    {
+        unique_thread = value;
+
+        return *this;
+    }
 };
 } //namespace zen::rtl

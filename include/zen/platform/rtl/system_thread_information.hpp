@@ -42,5 +42,21 @@ struct system_thread_information
     u32            num_context_switches{};
     u32            state{};
     u32            wait_reason{};
+
+    NODISCARD
+    constexpr
+    auto
+    pid() const noexcept -> u32
+    {
+        return client_id.pid();
+    }
+
+    NODISCARD
+    constexpr
+    auto
+    tid() const noexcept -> u32
+    {
+        return client_id.tid();
+    }
 };
 } //namespace zen::rtl
