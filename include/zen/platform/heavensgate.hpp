@@ -380,7 +380,7 @@ auto
 x64_nt_open_process(
     u32            pid,
     process_access desired_access,
-    status_code*   returnred_status = nullptr
+    status_code*   returned_status = nullptr
 ) noexcept -> void*;
 
 auto
@@ -411,6 +411,14 @@ x64_nt_create_thread_ex(
     u64                           size_of_stack_commit  = 0,
     u64                           size_of_stack_reserve = 0,
     void*                         bytes_buffer          = nullptr
+) noexcept -> void*;
+
+NODISCARD
+auto
+x64_nt_open_thread(
+    u32           thread_id,
+    thread_access desired_access,
+    status_code*  returned_status = nullptr
 ) noexcept -> void*;
 
 auto

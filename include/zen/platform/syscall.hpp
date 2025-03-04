@@ -201,6 +201,7 @@ nt_close(
     const void* handle
 ) noexcept -> status_code;
 
+NODISCARD
 auto
 nt_open_process(
     u32            pid,
@@ -236,6 +237,14 @@ nt_create_thread_ex(
     uptr                      size_of_stack_commit  = 0,
     uptr                      size_of_stack_reserve = 0,
     void*                     bytes_buffer          = nullptr
+) noexcept -> void*;
+
+NODISCARD
+auto
+nt_open_thread(
+    u32           thread_id,
+    thread_access desired_access,
+    status_code*  returned_status = nullptr
 ) noexcept -> void*;
 
 auto
@@ -312,4 +321,72 @@ nt_extend_section(
     const void* section_handle,
     szt         size
 ) noexcept -> status_code;
+
+template<class Fn>
+auto
+for_each_process(
+    Fn callback
+) noexcept -> void
+{
+    u64  buffer_size{};
+    auto status = nt_query_system_information(
+        rtl::system_info::process,
+        nullptr,
+        0,
+        &buffer_size
+    );
+
+    if (status.info_length_mismatch()) {
+        const auto buffer = std::make_unique<u8[]>(static_cast<szt>(buffer_size));
+
+        status = nt_query_system_information(
+            rtl::system_info::process,
+            buffer.get(),
+            buffer_size,
+            &buffer_size
+        );
+
+        if (status) {
+            const auto* entry = reinterpret_cast<const rtl::system_process_information<>*>(buffer.get());
+
+            while (entry && entry->next_entry_delta) {
+                if (callback(entry)) {
+                    break;
+                }
+
+                entry = entry->next();
+            }
+        }
+    }
+}
+
+template<class Fn>
+auto
+for_each_thread(
+    const u32 pid,
+    Fn        callback
+) noexcept -> void
+{
+    for_each_process([&](const rtl::system_process_information<>* const entry) noexcept -> bool
+    {
+        const auto found = pid == 0 || pid == entry->pid();
+
+        if (found && entry->num_threads > 0) {
+            for (u32 i{}; i < entry->num_threads; ++i) {
+                callback(&entry->threads[i]);
+            }
+        }
+
+        return found;
+    });
+}
+
+template<class Fn>
+auto
+for_each_thread(
+    Fn callback
+) noexcept -> void
+{
+    for_each_thread(0, callback);
+}
 } //namespace zen::win

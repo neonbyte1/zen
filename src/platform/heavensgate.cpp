@@ -207,7 +207,37 @@ x64_nt_open_process(
     rtl::object_attributes<true> attributes{};
     rtl::client_id<true>         cid{};
 
-    cid.unique_process = pid;
+    cid.pid(pid);
+
+    const auto status = win::x64_call(
+        function_address,
+        4,
+        win::x64_from_ptr(&handle),
+        static_cast<u64>(desired_access),
+        win::x64_from_ptr(&attributes),
+        win::x64_from_ptr(&cid)
+    );
+
+    *process_handle = x64_to_handle(handle);
+
+    return status_code{status};
+}
+
+NODISCARD
+auto
+x64_nt_open_thread(
+    const u32    thread_id,
+    const u32    desired_access,
+    void** const process_handle
+) noexcept -> status_code
+{
+    ZEN_DECL_HEAVENSGATE_METADATA("ntdll.dll", "NtOpenThread")
+
+    auto                         handle{win::invalid_handle_value<u64>()};
+    rtl::object_attributes<true> attributes{};
+    rtl::client_id<true>         cid{};
+
+    cid.tid(thread_id);
 
     const auto status = win::x64_call(
         function_address,
@@ -973,7 +1003,7 @@ auto
 win::x64_nt_open_process(
     const u32            pid,
     const process_access desired_access,
-    status_code* const   returnred_status
+    status_code* const   returned_status
 ) noexcept -> void*
 {
     void*      handle{};
@@ -983,8 +1013,8 @@ win::x64_nt_open_process(
         &handle
     );
 
-    if (returnred_status) {
-        *returnred_status = status;
+    if (returned_status) {
+        *returned_status = status;
     }
 
     return handle;
@@ -1069,6 +1099,27 @@ win::x64_nt_create_thread_ex(
         size_of_stack_reserve,
         bytes_buffer
     );
+
+    return handle;
+}
+
+auto
+win::x64_nt_open_thread(
+    const u32           thread_id,
+    const thread_access desired_access,
+    status_code*  const returned_status
+) noexcept -> void*
+{
+    void*      handle{};
+    const auto status = ::x64_nt_open_thread(
+        thread_id,
+        std::to_underlying(desired_access),
+        &handle
+    );
+
+    if (returned_status) {
+        *returned_status = status;
+    }
 
     return handle;
 }

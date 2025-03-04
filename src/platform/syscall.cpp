@@ -79,7 +79,30 @@ nt_open_process(
     rtl::object_attributes<> attributes{};
     rtl::client_id<>         cid{};
 
-    cid.unique_process = pid;
+    cid.pid(pid);
+
+    const auto status = win::syscall(syscall_index, &handle, desired_access, &attributes, &cid);
+
+    *process_handle = handle;
+
+    return status;
+}
+
+NODISCARD
+auto
+nt_open_thread(
+    const u32    thread_id,
+    const u32    desired_access,
+    void** const process_handle
+) noexcept -> status_code
+{
+    ZEN_DECL_SYSCALL_METADATA("ntdll.dll", "NtOpenTHread")
+
+    auto                     handle{win::invalid_handle_value()};
+    rtl::object_attributes<> attributes{};
+    rtl::client_id<>         cid{};
+
+    cid.tid(thread_id);
 
     const auto status = win::syscall(syscall_index, &handle, desired_access, &attributes, &cid);
 
@@ -804,6 +827,27 @@ win::nt_create_thread_ex(
         size_of_stack_reserve,
         bytes_buffer
     );
+
+    return handle;
+#endif
+}
+
+auto
+win::nt_open_thread(
+    const u32           thread_id,
+    const thread_access desired_access,
+    status_code*  const returned_status
+) noexcept -> void*
+{
+#if defined(ZEN_TARGET_32_BIT)
+    return x64_nt_open_thread(thread_id, desired_access, returned_status);
+#else
+    void* handle{};
+    const auto status = ::nt_open_thread(thread_id, std::to_underlying(desired_access), &handle);
+
+    if (returned_status) {
+        *returned_status = status;
+    }
 
     return handle;
 #endif
