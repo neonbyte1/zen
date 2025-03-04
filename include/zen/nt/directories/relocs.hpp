@@ -189,7 +189,6 @@ public:
     }
 
     NODISCARD
-    ZEN_CXX23_CONSTEXPR
     auto
     num_entries() const noexcept -> szt
     {
@@ -213,7 +212,6 @@ public:
     }
 
     NODISCARD
-    ZEN_CXX23_CONSTEXPR
     auto
     end() noexcept -> reloc_entry*
     {
@@ -221,7 +219,6 @@ public:
     }
 
     NODISCARD
-    ZEN_CXX23_CONSTEXPR
     auto
     end() const noexcept -> const reloc_entry*
     {
@@ -229,7 +226,6 @@ public:
     }
 
     NODISCARD
-    ZEN_CXX23_CONSTEXPR
     auto
     next() noexcept -> reloc_block*
     {
@@ -237,7 +233,6 @@ public:
     }
 
     NODISCARD
-    ZEN_CXX23_CONSTEXPR
     auto
     next() const noexcept -> const reloc_block*
     {
