@@ -27,6 +27,8 @@
 #include <zen/core/bit.hpp>
 
 ZEN_WIN32_ALIGNMENT(zen::win)
+enum struct main_reason : u32;
+
 class tls_characteristics
 {
     union native
@@ -238,6 +240,6 @@ private:
     native ctx_{};
 };
 
-template<bool X64 = detail::is_64_bit>
-using tls_callback_fn = void(ZEN_WIN32_CC*)(va_t<X64>, u32, va_t<X64>);
+template<bool X64 = detail::is_64_bit, class ReasonType = main_reason>
+using tls_callback_fn = void(ZEN_WIN32_CC*)(va_t<X64>, ReasonType, va_t<X64>);
 ZEN_RESTORE_ALIGNMENT() //namespace zen::win
