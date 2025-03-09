@@ -58,9 +58,9 @@
 #   define ZEN_TARGET_ARM 1
 #endif
 
-#if defined(_WIN64) || defined(_M_X64) || defined(__MINGW64__) || defined(__aarch64__)
+#if defined(_WIN64) || defined(_M_X64) || defined(__MINGW64__) || defined(__aarch64__) || defined(__x86_64__) || defined(__amd64__)
 #   define ZEN_TARGET_64_BIT 1
-#elif defined(_WIN32) || defined(_M_IX86) || defined(__MINGW32__) || defined(__arm__) || defined(__armv7__)
+#elif defined(_WIN32) || defined(_M_IX86) || defined(__MINGW32__) || defined(__arm__) || defined(__armv7__) || defined(__i386__)
 #   define ZEN_TARGET_32_BIT 1
 #else
 #   error "Unable to detect the target system architecture"
@@ -119,7 +119,7 @@
 #   if defined(ZEN_CXX_MSVC) || defined(ZEN_CXX_INTEL)
 #       define ZEN_WIN32_VAR_LEN 1
 #   else
-#       pragma warning(disable : 4200)
+//#       pragma warning(disable : 4200)
 #       define ZEN_WIN32_VAR_LEN 1
 #   endif
 #endif //ZEN_WIN32_VAR_LEN
