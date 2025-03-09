@@ -29,6 +29,9 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#if !defined(ZEN_OS_WINDOWS)
+#   include <utility>
+#endif
 
 #if !defined(ZEN_CXX_SUPPORTS)
 #   define ZEN_CXX_SUPPORTS(x) __has_cpp_attribute(x)
@@ -119,8 +122,12 @@
 #endif //ZEN_CXX_MSVC_SUPPORTS
 
 #if !defined(ZEN_CXX_MSVC_INTRINSIC)
-#   if ZEN_CXX_MSVC_SUPPORTS(intrinsic)
-#       define ZEN_CXX_MSVC_INTRINSIC [[msvc::intrinsic]]
+#   if defined(ZEN_OS_WINDOWS)
+#       if ZEN_CXX_MSVC_SUPPORTS(intrinsic)
+#           define ZEN_CXX_MSVC_INTRINSIC [[msvc::intrinsic]]
+#       else
+#           define ZEN_CXX_MSVC_INTRINSIC
+#       endif
 #   else
 #       define ZEN_CXX_MSVC_INTRINSIC
 #   endif
