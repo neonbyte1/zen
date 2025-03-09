@@ -48,34 +48,31 @@ enum struct directory : szt
     reserved0      = 15, // -
 };
 
-struct data_directories64
+union data_directories64
 {
-    union
+    struct directories_t
     {
-        data_directory entries[16]{};
-
-        struct
-        {
-            data_directory      export_directory;
-            data_directory      import_directory;
-            data_directory      resource_directory;
-            data_directory      exception_directory;
-            raw_data_directory  security_directory;  // File offset instead of RVA!
-            data_directory      basereloc_directory;
-            data_directory      debug_directory;
-            data_directory      architecture_directory;
-            data_directory      globalptr_directory;
-            data_directory      tls_directory;
-            data_directory      load_config_directory;
-            data_directory      bound_import_directory;
-            data_directory      iat_directory;
-            data_directory      delay_import_directory;
-            data_directory      com_descriptor_directory;
-            data_directory      _reserved0;
-        };
+        data_directory      exports;
+        data_directory      imports;
+        data_directory      resources;
+        data_directory      exceptions;
+        raw_data_directory  security;  // File offset instead of RVA!
+        data_directory      baserelocs;
+        data_directory      debug;
+        data_directory      architecture;
+        data_directory      globalptr;
+        data_directory      tls;
+        data_directory      load_configs;
+        data_directory      bound_imports;
+        data_directory      iat;
+        data_directory      delay_imports;
+        data_directory      com_descriptors;
+        data_directory      _reserved0;
     };
 
-    constexpr
+    data_directory entries[16]{};
+    directories_t  dir;
+
     data_directories64() noexcept = default;
 
     NODISCARD
@@ -99,34 +96,31 @@ struct data_directories64
     }
 };
 
-struct data_directories32
+union data_directories32
 {
-    union
+    struct directories_t
     {
-        data_directory entries[16]{};
-
-        struct
-        {
-            data_directory      export_directory;
-            data_directory      import_directory;
-            data_directory      resource_directory;
-            data_directory      exception_directory;
-            raw_data_directory  security_directory;  // File offset instead of RVA!
-            data_directory      basereloc_directory;
-            data_directory      debug_directory;
-            data_directory      copyright_directory;
-            data_directory      globalptr_directory;
-            data_directory      tls_directory;
-            data_directory      load_config_directory;
-            data_directory      bound_import_directory;
-            data_directory      iat_directory;
-            data_directory      delay_import_directory;
-            data_directory      com_descriptor_directory;
-            data_directory      _reserved0;
-        };
+        data_directory      exports;
+        data_directory      imports;
+        data_directory      resources;
+        data_directory      exceptions;
+        raw_data_directory  security;  // File offset instead of RVA!
+        data_directory      baserelocs;
+        data_directory      debug;
+        data_directory      copyright;
+        data_directory      globalptr;
+        data_directory      tls;
+        data_directory      load_configs;
+        data_directory      bound_imports;
+        data_directory      iat;
+        data_directory      delay_imports;
+        data_directory      com_descriptors;
+        data_directory      _reserved0;
     };
 
-    constexpr
+    data_directory entries[16]{};
+    directories_t  dir;
+
     data_directories32() noexcept = default;
 
     NODISCARD
