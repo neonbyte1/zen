@@ -79,7 +79,7 @@ x64_get_proc_address(
         return 0;
     }
 
-    const auto& data_dir = nt_hdr.optional_hdr().data_directories().export_directory;
+    const auto& data_dir = nt_hdr.optional_hdr().data_directories().dir.exports;
 
     if (!data_dir.present()) {
         return 0;
