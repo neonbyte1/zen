@@ -190,6 +190,13 @@ public:
         return handle_;
     }
 
+    template<class T>
+    auto
+    get() const noexcept -> T
+    {
+        return reinterpret_cast<T>(const_cast<void*>(handle_));
+    }
+
     NODISCARD
     constexpr
     auto
