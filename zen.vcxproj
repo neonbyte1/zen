@@ -328,6 +328,7 @@
     <ClInclude Include="include\zen\platform\common\handle_guard.hpp" />
     <ClInclude Include="include\zen\platform\common\memory_guard.hpp" />
     <ClInclude Include="include\zen\platform\common\memory_section.hpp" />
+    <ClInclude Include="include\zen\platform\common\protection_guard.hpp" />
     <ClInclude Include="include\zen\platform\common\status_code.hpp" />
     <ClInclude Include="include\zen\platform\heavensgate.hpp" />
     <ClInclude Include="include\zen\platform\rtl\client_id.hpp" />
