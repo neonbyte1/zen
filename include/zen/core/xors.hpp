@@ -92,9 +92,9 @@ private:
     auto
     crypt(
         const value_type c
-    ) noexcept -> char
+    ) noexcept -> value_type
     {
-        return c ^ random_char<T, K>::value;
+        return static_cast<value_type>(c ^ random_char<T, K>::value);
     }
 
 public:
@@ -105,7 +105,7 @@ public:
         const_pointer const str,
         std::index_sequence<Is...>
     ) noexcept
-        : buffer_{ crypt(str[Is])... }
+        : buffer_{crypt(str[Is])...}
     {}
 
     NODISCARD
