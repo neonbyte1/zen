@@ -367,7 +367,7 @@ for_each_thread(
     Fn        callback
 ) noexcept -> void
 {
-    for_each_process([&](const rtl::system_process_information<>* const entry) noexcept -> bool
+    for_each_process([&](const rtl::system_process_information<true>* const entry) noexcept -> bool
     {
         const auto found = pid == 0 || pid == entry->pid();
 
