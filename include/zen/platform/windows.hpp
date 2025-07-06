@@ -36,6 +36,10 @@ NODISCARD
 auto
 get_pid() noexcept -> u32;
 
+NODISCARD
+auto
+get_tid() noexcept -> u32;
+
 auto
 enum_modules(
     const std::function<bool(std::wstring_view, va_t<>)>& callback

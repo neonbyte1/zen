@@ -319,6 +319,19 @@ win::x64_get_pid() noexcept -> u32
     return static_cast<u32>(pid);
 }
 
+auto
+win::x64_get_tid() noexcept -> u32
+{
+    // https://en.wikipedia.org/wiki/Win32_Thread_Information_Block#Contents_of_the_TIB_on_Windows
+    // Type     Offset (x86)    Offset (x64)    Description
+    // pointer 	FS:[0x24] 	    GS:[0x48] 	    Current thread ID
+
+    u64 pid{};
+    win::x64_memcpy(&pid, x64_get_teb() + 0x48, sizeof(pid));
+
+    return static_cast<u32>(pid);
+}
+
 #pragma warning(push)
 #pragma warning(disable : 4409)
 auto

@@ -187,6 +187,19 @@ win::get_pid() noexcept -> u32
 }
 
 auto
+win::get_tid() noexcept -> u32
+{
+#if defined(ZEN_TARGET_32_BIT)
+    return x64_get_tid();
+#else
+    // https://en.wikipedia.org/wiki/Win32_Thread_Information_Block#Contents_of_the_TIB_on_Windows
+    // Type     Offset (x86)    Offset (x64)    Description
+    // pointer 	FS:[0x24] 	    GS:[0x48] 	    Current thread ID
+    return static_cast<u32>(__readgsqword(0x48));
+#endif
+}
+
+auto
 win::nt_query_information_process(
     const void* const       process_handle,
     const rtl::process_info id,

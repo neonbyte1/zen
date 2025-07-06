@@ -200,6 +200,10 @@ NODISCARD
 auto
 x64_get_pid() noexcept -> u32;
 
+NODISCARD
+auto
+x64_get_tid() noexcept -> u32;
+
 auto
 __cdecl
 x64_call(
