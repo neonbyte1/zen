@@ -276,6 +276,33 @@ enum struct system_info : u32
 };
 
 template<bool X64 = true>
+struct system_basic_information
+{
+    u32       reserved{};
+    u32       timer_resolution{};
+    u32       page_size{};
+    u32       num_physical_pages{};
+    u32       lowest_physical_page_num{};
+    u32       highest_physical_page_num{};
+    u32       allocation_granularity{};
+    va_t<X64> min_user_mode_address{};
+    va_t<X64> max_user_mode_address{};
+    u32       active_processors_affinity_mask{};
+
+private:
+    va_t<X64> num_processors_{};
+
+public:
+    NODISCARD
+    constexpr
+    auto
+    num_processors() const noexcept -> u32
+    {
+        return static_cast<u32>(num_processors_);
+    }
+};
+
+template<bool X64 = true>
 struct system_process_information
 {
     u32                            next_entry_delta{};
