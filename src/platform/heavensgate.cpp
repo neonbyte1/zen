@@ -26,16 +26,21 @@
 
 using namespace zen;
 
-#define ZEN_DECL_HEAVENSGATE_METADATA(ModuleName, FunctionName)                                            \
+// ZEN_DECL_SYSCALL_METADATA_WITH_RETURN_VALUE
+
+#define ZEN_DECL_HEAVENSGATE_METADATA_WITH_RETURN_VALUE(ModuleName, FunctionName, Fallback)                \
     static u64 function_address;                                                                           \
     if (!function_address) {                                                                               \
         constexpr static auto module_hash = zen::fnv<>::hash<true>(ModuleName);                            \
         constexpr static auto name_hash = zen::fnv<>::hash<true>(FunctionName);                            \
         function_address = win::x64_get_proc_address(win::x64_get_module_handle(module_hash), name_hash);  \
         if (!function_address) {                                                                           \
-            return /*STATUS_INVALID_SYSTEM_SERVICE*/ status_code{static_cast<long>(0xC000001C)};           \
+            return (Fallback);                                                                             \
         }                                                                                                  \
     }
+
+#define ZEN_DECL_HEAVENSGATE_METADATA(ModuleName, FunctionName) \
+    ZEN_DECL_HEAVENSGATE_METADATA_WITH_RETURN_VALUE(ModuleName, FunctionName, status_code{static_cast<long>(0xC000001C)})
 
 namespace {
 NODISCARD
@@ -1328,5 +1333,25 @@ win::x64_nt_extend_section(
             size
         )
     };
+}
+
+auto
+win::x64_nt_user_get_key_state(
+    const i32 key
+) noexcept -> i16
+{
+    ZEN_DECL_HEAVENSGATE_METADATA_WITH_RETURN_VALUE("win32u.dll", "NtUserGetKeyState", 0)
+
+    return static_cast<i16>(x64_call(function_address, 1, x64_from_ptr(key)));
+}
+
+auto
+win::x64_nt_user_get_async_key_state(
+    const i32 key
+) noexcept -> i16
+{
+    ZEN_DECL_HEAVENSGATE_METADATA_WITH_RETURN_VALUE("win32u.dll", "NtUserGetAsyncKeyState", 0)
+
+    return static_cast<i16>(x64_call(function_address, 1, x64_from_ptr(key)));
 }
 #endif //ZEN_OS_32_BIT

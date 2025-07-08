@@ -53,16 +53,19 @@ resolve_syscall_id(
 using namespace zen;
 
 #if defined(ZEN_TARGET_64_BIT)
-#define ZEN_DECL_SYSCALL_METADATA(ModuleName, FunctionName)                                            \
+#define ZEN_DECL_SYSCALL_METADATA_WITH_RETURN_VALUE(ModuleName, FunctionName, Fallback) \
     static u32 syscall_index;                                                                          \
     if (!syscall_index) {                                                                              \
         constexpr static auto module_hash = zen::fnv<>::hash<true>(ModuleName);                        \
         constexpr static auto name_hash = zen::fnv<>::hash<true>(FunctionName);                        \
         syscall_index = zen::win::get_syscall_id(zen::win::get_module_handle(module_hash), name_hash); \
         if (!syscall_index) {                                                                          \
-            return /*STATUS_INVALID_SYSTEM_SERVICE*/ status_code{static_cast<long>(0xC000001C)};       \
+            return (Fallback);                                                                         \
         }                                                                                              \
     }
+
+#define ZEN_DECL_SYSCALL_METADATA(ModuleName, FunctionName) \
+    ZEN_DECL_SYSCALL_METADATA_WITH_RETURN_VALUE(ModuleName, FunctionName, status_code{static_cast<long>(0xC000001C)})
 
 namespace {
 NODISCARD
@@ -1115,6 +1118,34 @@ win::nt_extend_section(
     auto section_size = static_cast<iptr>(size);
 
     return syscall(syscall_index, section_handle, &section_size);
+#endif
+}
+
+auto
+win::nt_user_get_key_state(
+    const i32 key
+) noexcept -> i16
+{
+#if defined(ZEN_TARGET_32_BIT)
+    return x64_nt_user_get_key_state(key);
+#else
+    ZEN_DECL_SYSCALL_METADATA_WITH_RETURN_VALUE("win32u.dll", "NtUserGetKeyState", 0)
+
+    return syscall<i16>(syscall_index, key);
+#endif
+}
+
+auto
+win::nt_user_get_async_key_state(
+    const i32 key
+) noexcept -> i16
+{
+#if defined(ZEN_TARGET_32_BIT)
+    return x64_nt_user_get_async_key_state(key);
+#else
+    ZEN_DECL_SYSCALL_METADATA_WITH_RETURN_VALUE("win32u.dll", "NtUserGetAsyncKeyState", 0)
+
+    return syscall<i16>(syscall_index, key);
 #endif
 }
 

@@ -322,6 +322,16 @@ nt_extend_section(
     szt         size
 ) noexcept -> status_code;
 
+auto
+nt_user_get_key_state(
+    i32 key
+) noexcept -> i16;
+
+auto
+nt_user_get_async_key_state(
+    i32 key
+) noexcept -> i16;
+
 template<class Fn>
 auto
 for_each_process(

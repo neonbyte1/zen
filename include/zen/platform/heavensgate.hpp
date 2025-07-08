@@ -493,5 +493,15 @@ x64_nt_extend_section(
     const void* section_handle,
     u64         size
 ) noexcept -> status_code;
+
+auto
+x64_nt_user_get_key_state(
+    i32 key
+) noexcept -> i16;
+
+auto
+x64_nt_user_get_async_key_state(
+    i32 key
+) noexcept -> i16;
 } //namespace zen::win
 #endif
