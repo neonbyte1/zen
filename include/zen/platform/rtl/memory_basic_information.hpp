@@ -24,7 +24,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
-#include <zen/core/requirements.hpp>
+#include <zen/platform/constants.hpp>
 
 namespace zen::rtl {
 enum struct memory_info : u32
