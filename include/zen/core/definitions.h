@@ -153,6 +153,40 @@
 #   endif
 #endif //ZEN_DECLSPEC_ALIGN
 
+#if !defined(ZEN_TYPED_THISCALL_HOOK_ARGS_X86)
+#   define ZEN_TYPED_THISCALL_HOOK_ARGS_X86(Type) \
+        Type* ecx, void* edx
+#endif //ZEN_TYPED_THISCALL_HOOK_ARGS_X86
+
+#if !defined(ZEN_TYPED_THISCALL_HOOK_ARGS_X64)
+#   define ZEN_TYPED_THISCALL_HOOK_ARGS_X64(Type) \
+        Type* rcx, void* rdx
+#endif //ZEN_TYPED_THISCALL_HOOK_ARGS_X64
+
+#if !defined(ZEN_THISCALL_HOOK_ARGS_X86)
+#   define ZEN_THISCALL_HOOK_ARGS_X86 ZEN_TYPED_THISCALL_HOOK_ARGS_X86(void)
+#endif //ZEN_THISCALL_HOOK_ARGS_X86
+
+#if !defined(ZEN_THISCALL_HOOK_ARGS_X64)
+#   define ZEN_THISCALL_HOOK_ARGS_X64 ZEN_TYPED_THISCALL_HOOK_ARGS_X64(void)
+#endif //ZEN_THISCALL_HOOK_ARGS_X64
+
+#if !defined(ZEN_TYPED_THISCALL_HOOK_ARGS)
+#   if defined(ZEN_TARGET_32_BIT)
+#       define ZEN_TYPED_THISCALL_HOOK_ARGS(Type) ZEN_TYPED_THISCALL_HOOK_ARGS_X86(Type)
+#   else
+#       define ZEN_TYPED_THISCALL_HOOK_ARGS(Type) ZEN_TYPED_THISCALL_HOOK_ARGS_X64(Type)
+#   endif
+#endif //ZEN_TYPED_THISCALL_HOOK_ARGS
+
+#if !defined(ZEN_THISCALL_HOOK_ARGS)
+#   if defined(ZEN_TARGET_32_BIT)
+#       define ZEN_THISCALL_HOOK_ARGS ZEN_THISCALL_HOOK_ARGS_X86
+#   else
+#       define ZEN_THISCALL_HOOK_ARGS ZEN_THISCALL_HOOK_ARGS_X64
+#   endif
+#endif //ZEN_TYPED_THISCALL_HOOK_ARGS
+
 #if !defined(ZEN_EXTERN)
 #   if defined(ZEN_CXX)
 #       define ZEN_EXTERN extern "C"
@@ -160,6 +194,10 @@
 #       define ZEN_EXTERN extern
 #   endif
 #endif //ZEN_EXTERN
+
+#if !defined(UNUSED_PARAM)
+#   define UNUSED_PARAM(p) (void)(p)
+#endif //UNUSED_PARAM
 
 #if defined(ZEN_INCLUDE_WINDOWS_HEADER) && defined(ZEN_OS_WINDOWS)
 #   if defined(ZEN_CXX_MINGW)
