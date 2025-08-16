@@ -1342,7 +1342,7 @@ win::x64_nt_user_get_key_state(
 {
     ZEN_DECL_HEAVENSGATE_METADATA_WITH_RETURN_VALUE("win32u.dll", "NtUserGetKeyState", 0)
 
-    return static_cast<i16>(x64_call(function_address, 1, x64_from_ptr(key)));
+    return static_cast<i16>(x64_call(function_address, 1, static_cast<u64>(key)));
 }
 
 auto
@@ -1352,6 +1352,26 @@ win::x64_nt_user_get_async_key_state(
 {
     ZEN_DECL_HEAVENSGATE_METADATA_WITH_RETURN_VALUE("win32u.dll", "NtUserGetAsyncKeyState", 0)
 
-    return static_cast<i16>(x64_call(function_address, 1, x64_from_ptr(key)));
+    return static_cast<i16>(x64_call(function_address, 1, static_cast<u64>(key)));
+}
+
+auto
+win::x64_nt_user_send_input(
+    const szt          num_inputs,
+    input<true>* const inputs,
+    const u64          size
+) noexcept -> u32
+{
+    ZEN_DECL_HEAVENSGATE_METADATA_WITH_RETURN_VALUE("win32u.dll", "NtUserSendInput", 0)
+
+    return static_cast<u32>(
+        x64_call(
+            function_address,
+            3,
+            static_cast<u64>(num_inputs),
+            x64_from_ptr(inputs),
+            size
+        )
+    );
 }
 #endif //ZEN_OS_32_BIT

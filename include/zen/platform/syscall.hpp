@@ -36,6 +36,8 @@
 #include <zen/platform/rtl/io_status_block.hpp>
 #include <zen/platform/rtl/large_integer.hpp>
 
+#include "common/input.hpp"
+
 #if defined(ZEN_TARGET_64_BIT)
 namespace zen::detail {
 extern "C" void* syscall_stub();
@@ -331,6 +333,31 @@ auto
 nt_user_get_async_key_state(
     i32 key
 ) noexcept -> i16;
+
+auto
+nt_user_send_input(
+    szt          num_inputs,
+    input<true>* inputs,
+    szt          size
+) noexcept -> u32;
+
+inline
+auto
+nt_user_send_input(
+    const input<true>& data
+) noexcept -> u32
+{
+    return nt_user_send_input(1, const_cast<input<true>*>(&data), sizeof(input<true>));
+}
+
+template<szt N>
+auto
+nt_user_send_input(
+    const input<true>(&data)[N]
+) noexcept -> u32
+{
+    return nt_user_send_input(N, const_cast<input<true>*>(data), sizeof(input<true>));
+}
 
 template<class Fn>
 auto

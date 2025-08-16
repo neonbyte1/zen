@@ -20,6 +20,7 @@
 
 #include <zen/platform/constants.hpp>
 #include <zen/platform/common/status_code.hpp>
+#include <zen/platform/common/input.hpp>
 #include <zen/platform/rtl/memory_basic_information.hpp>
 #include <zen/platform/rtl/process_basic_information.hpp>
 #include <zen/platform/rtl/thread_basic_information.hpp>
@@ -503,5 +504,12 @@ auto
 x64_nt_user_get_async_key_state(
     i32 key
 ) noexcept -> i16;
+
+auto
+x64_nt_user_send_input(
+    szt          num_inputs,
+    input<true>* inputs,
+    u64          size
+) noexcept -> u32;
 } //namespace zen::win
 #endif

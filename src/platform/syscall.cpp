@@ -1150,6 +1150,22 @@ win::nt_user_get_async_key_state(
 }
 
 auto
+win::nt_user_send_input(
+    const szt          num_inputs,
+    input<true>* const inputs,
+    const szt          size
+) noexcept -> u32
+{
+#if defined(ZEN_TARGET_32_BIT)
+    return x64_nt_user_send_input(num_inputs, inputs, size);
+#else
+    ZEN_DECL_SYSCALL_METADATA_WITH_RETURN_VALUE("win32u.dll", "NtUserSendInput", 0)
+
+    return syscall<u32>(syscall_index, num_inputs, inputs, size);
+#endif
+}
+
+auto
 detail::nt_close_guard::close(
     const void* const handle
 ) noexcept -> void
