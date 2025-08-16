@@ -106,6 +106,14 @@
 #   endif
 #endif //ZEN_FORCEINLINE
 
+#if !defined(ZEN_WIN32_DLL_PROCESS_DETACH)
+#   define ZEN_WIN32_DLL_PROCESS_DETACH 0
+#endif //ZEN_WIN32_DLL_PROCESS_DETACH
+
+#if !defined(ZEN_WIN32_DLL_PROCESS_ATTACH)
+#   define ZEN_WIN32_DLL_PROCESS_ATTACH 1
+#endif //ZEN_WIN32_DLL_PROCESS_ATTACH
+
 #if defined(ZEN_OS_WINDOWS)
 #   if !defined(NOMINMAX)
 #       define NOMINMAX
