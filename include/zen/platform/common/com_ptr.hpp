@@ -73,8 +73,10 @@ public:
     com_ptr(
         com_ptr&& rhs
     ) noexcept
-        : data_{rhs.release()}
-    {}
+        : data_{rhs.get()}
+    {
+        rhs.data_ = nullptr;
+    }
 
     ~com_ptr() noexcept
     {
@@ -99,7 +101,9 @@ public:
     ) noexcept -> com_ptr&
     {
         if (this != std::addressof(rhs)) {
-            reset(rhs.release());
+            reset(rhs.get());
+
+            rhs.data_ = nullptr;
         }
 
         return *this;
