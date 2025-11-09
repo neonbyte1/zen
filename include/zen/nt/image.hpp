@@ -467,7 +467,7 @@ public:
 
             for (va_t<X64> i{}; i < entry->address(); i += sizeof(va_t<X64>), ++entry) {
                 const auto* const import_by_name
-                    = rva_to_ptr<image_named_import>(entry->address());
+                    = rva_to_ptr<image_named_import>(static_cast<u32>(entry->address()));
 
                 import_info info{static_cast<u32>(i / sizeof(va_t<X64>))};
 
@@ -585,9 +585,9 @@ public:
     auto
     make(
         va_t<X64> handle
-    ) noexcept -> image*
+    ) noexcept -> image<X64>*
     {
-        return reinterpret_cast<image*>(handle);
+        return reinterpret_cast<image<X64>*>(handle);
     }
 
 private:
