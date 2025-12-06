@@ -63,7 +63,6 @@ private:
     NODISCARD
     constexpr
     static
-    ZEN_FORCEINLINE
     auto
     process(
         const C* const   str,
