@@ -31,6 +31,7 @@
 #include <string_view>
 #if !defined(ZEN_OS_WINDOWS)
 #   include <utility>
+#   include <cstring>
 #endif
 
 #if !defined(ZEN_CXX_SUPPORTS)
