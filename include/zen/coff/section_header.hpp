@@ -1,4 +1,4 @@
-// Copyright (c) 2025, neonbyte - All rights reserved.
+// Copyright (c) 2025 - 2026, neonbyte - All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -390,4 +390,3 @@ using section_characteristics = coff::section_characteristics;
 using section_header          = coff::section_header;
 } //namespace win
 ZEN_RESTORE_ALIGNMENT() //namespace zen
-
