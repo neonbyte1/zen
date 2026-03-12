@@ -1,0 +1,305 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "windows-base",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/install/${presetName}",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "x64-debug-mtd-msvc",
+            "displayName": "x64 Debug (Static) | MSVC",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "x64-debug-mdd-msvc",
+            "displayName": "x64 Debug (Dynamic) | MSVC",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+            }
+        },
+        {
+            "name": "x86-debug-mtd-msvc",
+            "displayName": "x86 Debug (Static) | MSVC",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "x86-debug-mdd-msvc",
+            "displayName": "x86 Debug (Dynamic) | MSVC",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+            }
+        },
+        {
+            "name": "x64-release-mt-msvc",
+            "displayName": "x64 Release (Static) | MSVC",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "x64-release-md-msvc",
+            "displayName": "x64 Release (Dynamic) | MSVC",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+            }
+        },
+        {
+            "name": "x86-release-mt-msvc",
+            "displayName": "x86 Release (Static) | MSVC",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "x86-release-md-msvc",
+            "displayName": "x86 Release (Dynamic) | MSVC",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+            }
+        },
+                {
+            "name": "x64-debug-mtd-clang",
+            "displayName": "x64 Debug (Static) | clang",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang-cl.exe",
+                "CMAKE_CXX_COMPILER": "clang-cl.exe",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "x64-debug-mdd-clang",
+            "displayName": "x64 Debug (Dynamic) | clang",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang-cl.exe",
+                "CMAKE_CXX_COMPILER": "clang-cl.exe",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+            }
+        },
+        {
+            "name": "x86-debug-mtd-clang",
+            "displayName": "x86 Debug (Static) | clang",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang-cl.exe",
+                "CMAKE_CXX_COMPILER": "clang-cl.exe",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "x86-debug-mdd-clang",
+            "displayName": "x86 Debug (Dynamic) | clang",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang-cl.exe",
+                "CMAKE_CXX_COMPILER": "clang-cl.exe",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+            }
+        },
+        {
+            "name": "x64-release-mt-clang",
+            "displayName": "x64 Release (Static) | clang",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang-cl.exe",
+                "CMAKE_CXX_COMPILER": "clang-cl.exe",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "x64-release-md-clang",
+            "displayName": "x64 Release (Dynamic) | clang",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang-cl.exe",
+                "CMAKE_CXX_COMPILER": "clang-cl.exe",
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+            }
+        },
+        {
+            "name": "x86-release-mt-clang",
+            "displayName": "x86 Release (Static | clang)",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang-cl.exe",
+                "CMAKE_CXX_COMPILER": "clang-cl.exe",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "x86-release-md-clang",
+            "displayName": "x86 Release (Dynamic) | clang",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang-cl.exe",
+                "CMAKE_CXX_COMPILER": "clang-cl.exe",
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "x64-debug-mtd-msvc",
+            "configurePreset": "x64-debug-mtd-msvc"
+        },
+        {
+            "name": "x64-debug-mdd-msvc",
+            "configurePreset": "x64-debug-mdd-msvc"
+        },
+        {
+            "name": "x86-debug-mtd-msvc",
+            "configurePreset": "x86-debug-mtd-msvc"
+        },
+        {
+            "name": "x86-debug-mdd-msvc",
+            "configurePreset": "x86-debug-mdd-msvc"
+        },
+        {
+            "name": "x64-release-mt-msvc",
+            "configurePreset": "x64-release-mt-msvc"
+        },
+        {
+            "name": "x64-release-md-msvc",
+            "configurePreset": "x64-release-md-msvc"
+        },
+        {
+            "name": "x86-release-mt-msvc",
+            "configurePreset": "x86-release-mt-msvc"
+        },
+        {
+            "name": "x86-release-md-msvc",
+            "configurePreset": "x86-release-md-msvc"
+        },
+        {
+            "name": "x64-debug-mtd-clang",
+            "configurePreset": "x64-debug-mtd-clang"
+        },
+        {
+            "name": "x64-debug-mdd-clang",
+            "configurePreset": "x64-debug-mdd-clang"
+        },
+        {
+            "name": "x86-debug-mtd-clang",
+            "configurePreset": "x86-debug-mtd-clang"
+        },
+        {
+            "name": "x86-debug-mdd-clang",
+            "configurePreset": "x86-debug-mdd-clang"
+        },
+        {
+            "name": "x64-release-mt-clang",
+            "configurePreset": "x64-release-mt-clang"
+        },
+        {
+            "name": "x64-release-md-clang",
+            "configurePreset": "x64-release-md-clang"
+        },
+        {
+            "name": "x86-release-mt-clang",
+            "configurePreset": "x86-release-mt-clang"
+        },
+        {
+            "name": "x86-release-md-clang",
+            "configurePreset": "x86-release-md-clang"
+        }
+    ]
+}
