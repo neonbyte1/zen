@@ -274,6 +274,12 @@ concept enum_type
 namespace detail {
 inline constexpr auto is_64_bit        = sizeof(void*) == sizeof(u64);
 inline constexpr auto is_little_endian = std::endian::native == std::endian::little;
+inline constexpr auto is_windows =
+#if defined(ZEN_OS_WINDOWS)
+    true;
+#else
+    false;
+#endif
 } //namespace detail
 
 namespace win {
