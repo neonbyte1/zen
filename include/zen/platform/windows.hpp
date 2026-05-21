@@ -26,9 +26,24 @@
 
 #include <zen/core/xors.hpp>
 #include <zen/platform/rtl/api_set_schema.hpp>
+#include <zen/platform/version_info.hpp>
 #include <functional>
 
 namespace zen {
+namespace win {
+NODISCARD
+auto
+to_wide(
+    std::string_view input
+) noexcept -> std::wstring;
+
+NODISCARD
+auto
+to_ansi(
+    std::wstring_view input
+) noexcept -> std::string;
+} //namespace win
+
 namespace detail {
 template<class T>
 constexpr
@@ -48,6 +63,7 @@ add_host(
 }
 
 NODISCARD
+inline
 auto
 get_wstring(
     const u8* const base,
@@ -71,6 +87,10 @@ get_wstring(
 namespace win {
 using api_set_schema_a = std::unordered_map<std::string, std::vector<std::string>>;
 using api_set_schema_w = std::unordered_map<std::wstring, std::vector<std::wstring>>;
+
+NODISCARD
+auto
+version_info() noexcept -> version_info_t&;
 
 NODISCARD
 auto
@@ -117,18 +137,6 @@ get_proc_address(
     std::string_view name,
     bool             lowercase = true
 ) noexcept -> uptr;
-
-NODISCARD
-auto
-to_wide(
-    std::string_view input
-) noexcept -> std::wstring;
-
-NODISCARD
-auto
-to_ansi(
-    std::wstring_view input
-) noexcept -> std::string;
 
 NODISCARD
 auto
@@ -198,7 +206,7 @@ dump_api_set_schema_v2(
         const auto&       e           = entries[i];
         auto              proxy       = detail::get_wstring(base, e.name_offset, e.name_len);
         const auto* const values      = reinterpret_cast<const rtl::api_set_value_entry_v2*>(base + e.data_offset);
-        const auto* const num_values  = reinterpret_cast<const u32*>(base + e.data_offset)[0];
+        const auto        num_values  = reinterpret_cast<const u32*>(base + e.data_offset)[0];
         const auto* const value_entry = reinterpret_cast<const rtl::api_set_value_entry_v2*>(base + e.data_offset + sizeof(u32));
 
         for (u32 j{}; j < num_values; ++j) {
@@ -358,6 +366,36 @@ resolve_api_schema(
         }
 
         return &host;
+    }
+
+    return nullptr;
+}
+template<class T>
+requires(std::is_same_v<api_set_schema_a, T> || std::is_same_v<api_set_schema_w, T>)
+NODISCARD
+auto
+resolve_api_schema(
+    const T&   cache,
+    const u32  name_hash,
+    const bool lowercase = true
+) noexcept
+-> const std::conditional_t<
+    std::is_same_v<api_set_schema_a, T>,
+    std::string,
+    std::wstring
+>*
+{
+    using key_t = std::conditional_t<std::is_same_v<api_set_schema_a, T>, std::string, std::wstring>;
+
+    for (const auto& [key, values] : cache) {
+        // ApiSet keys are stored without ".dll"; callers hash the full name including it
+        const auto hash = lowercase
+            ? fnv<>::hash<true>(".dll", fnv<>::get<true>(key))
+            : fnv<>::hash(".dll", fnv<>::get(key));
+
+        if (hash == name_hash) {
+            return resolve_api_schema(cache, key);
+        }
     }
 
     return nullptr;
