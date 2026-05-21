@@ -199,15 +199,17 @@ win::version_info() noexcept -> version_info_t&
     static version_info_t info{};
     static bool           init{};
 
+
     if (!init) {
         init = true;
 
-        const auto rtl_get_version
-            = get_proc_address<
-                long(__stdcall*)(rtl::os_version_info_ex_w*)
-            >(get_module_handle(xors("ntdll.dll")), xors("RtlGetVersion"));
+        const auto* const peb = reinterpret_cast<rtl::peb<>*>(get_peb());
 
-        rtl_get_version(&info.native);
+        info.native.version.major(peb->os_version.major());
+        info.native.version.minor(peb->os_version.minor());
+        info.native.build_number = peb->os_build;
+        info.native.service_pack.minor(bit::u16_hi(peb->os_csd_version));
+        info.native.service_pack.minor(bit::u16_lo(peb->os_csd_version));
 
         info.classify();
     }

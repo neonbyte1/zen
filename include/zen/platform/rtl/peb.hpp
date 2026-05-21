@@ -25,6 +25,7 @@
 #pragma once
 
 #include <zen/platform/rtl/ldr_data_table_entry.hpp>
+#include <zen/platform/rtl/large_integer.hpp>
 #include <zen/platform/rtl/peb_ldr_data.hpp>
 #include <zen/platform/rtl/user_process_parameters.hpp>
 
@@ -51,6 +52,15 @@ private:
         return X64 ? 0x30 : 0x1C;
     }
 
+    NODISCARD
+    constexpr
+    static
+    auto
+    size_pad3() noexcept -> szt
+    {
+        return X64 ? 0xA8 : 0x68;
+    }
+
 public:
     u8 inherited_address_space{};
     u8 read_image_file_exec_options{};
@@ -73,13 +83,31 @@ public:
     };
 
     PAD(size_pad1());
-    va_t<X64> image_base{};
-    va_t<X64> ldr{};
-    va_t<X64> process_parameters{};
-    va_t<X64> sub_system_data{};
-    va_t<X64> process_heap{};
+    va_t<X64>           image_base{};
+    va_t<X64>           ldr{};
+    va_t<X64>           process_parameters{};
+    va_t<X64>           sub_system_data{};
+    va_t<X64>           process_heap{};
     PAD(size_pad2());
-    va_t<X64> api_set_map{};
+    va_t<X64>           api_set_map{};
+    PAD(size_pad3());
+    coff::version64     os_version{};
+    u16                 os_build{};
+    u16                 os_csd_version{};
+    u32                 os_platform_id{};
+    u32                 image_subsystem{};
+    coff::version64     image_subystem_version{};
+    u32                 active_process_affinity_mask{};
+    u32                 gdi_handle_buffer[34]{};
+    va_t<X64>           post_process_init_routine{};
+    va_t<X64>           tls_expansion_bitmap{};
+    u32                 tls_expansion_bitmap_bits[32]{};
+    u32                 session_id{};
+    large_integer       app_compat_flags{};
+    large_integer       app_compat_flags_user{};
+    va_t<X64>           shim_data{};
+    va_t<X64>           app_compat_info{};
+    unicode_string<X64> csd_version{};
 
     NODISCARD
     auto
