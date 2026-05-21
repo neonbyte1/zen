@@ -109,8 +109,7 @@ big(
     return swap_if<std::endian::little>(value);
 }
 
-template<class T>
-requires(std::is_integral_v<T> || std::is_pointer_v<T>)
+template<scalar T>
 NODISCARD
 constexpr
 auto
@@ -120,15 +119,16 @@ u32_lo(
 {
     // also known as LOWORD
 
-    if constexpr (std::is_pointer_v<T>) {
+    if constexpr (std::is_enum_v<T> || std::is_scoped_enum_v<T>) {
+        return u32_lo(std::to_underlying(value));
+    } else if constexpr (std::is_pointer_v<T>) {
         return u32_lo(reinterpret_cast<const uptr>(value));
     } else {
         return static_cast<u16>(static_cast<uptr>(value) & 0xFFFF);
     }
 }
 
-template<class T>
-requires(std::is_integral_v<T> || std::is_pointer_v<T>)
+template<scalar T>
 NODISCARD
 constexpr
 auto
@@ -138,7 +138,9 @@ u32_hi(
 {
     // also known as HIWORD
 
-    if constexpr (std::is_pointer_v<T>) {
+    if constexpr (std::is_enum_v<T> || std::is_scoped_enum_v<T>) {
+        return u32_hi(std::to_underlying(value));
+    } if constexpr (std::is_pointer_v<T>) {
         return u32_hi(reinterpret_cast<const uptr>(value));
     } else {
         return static_cast<u16>((static_cast<uptr>(value) >> 16) & 0xFFFF);
@@ -146,8 +148,7 @@ u32_hi(
 }
 
 
-template<class T>
-requires(std::is_integral_v<T> || std::is_pointer_v<T>)
+template<scalar T>
 NODISCARD
 constexpr
 auto
@@ -156,15 +157,17 @@ u16_lo(
 ) noexcept -> u8
 {
     // also known as LOBYTE
-    if constexpr (std::is_pointer_v<T>) {
+
+    if constexpr (std::is_enum_v<T> || std::is_scoped_enum_v<T>) {
+        return u16_lo(std::to_underlying(value));
+    } if constexpr (std::is_pointer_v<T>) {
         return u16_lo(reinterpret_cast<const uptr>(value));
     } else {
         return static_cast<u8>(static_cast<uptr>(value) & 0xFF);
     }
 }
 
-template<class T>
-requires(std::is_integral_v<T> || std::is_pointer_v<T>)
+template<scalar T>
 NODISCARD
 constexpr
 auto
@@ -173,7 +176,10 @@ u16_hi(
 ) noexcept -> u8
 {
     // also known as HIBIYTE
-    if constexpr (std::is_pointer_v<T>) {
+
+    if constexpr (std::is_enum_v<T> || std::is_scoped_enum_v<T>) {
+        return u16_hi(std::to_underlying(value));
+    } if constexpr (std::is_pointer_v<T>) {
         return u16_hi(reinterpret_cast<const uptr>(value));
     } else {
         return static_cast<u8>((static_cast<uptr>(value) >> 8) & 0xFF);
