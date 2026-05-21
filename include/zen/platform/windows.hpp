@@ -245,7 +245,7 @@ dump_api_set_schema_v4(
         std::vector<T>    modules;
         const auto&       e           = entries[i];
         auto              proxy       = detail::get_wstring(base, e.name_offset, e.name_len);
-        auto              alias       = detail::get_wstring(base, e.AliasOffset, e.AliasLength);
+        auto              alias       = detail::get_wstring(base, e.alias_offset, e.alias_len);
         const auto* const values      = reinterpret_cast<const rtl::api_set_value_entry_v4*>(base + e.data_offset);
         const auto        num_values  = *reinterpret_cast<const u32*>(base + e.data_offset);
         const auto* const value_entry = reinterpret_cast<const rtl::api_set_value_entry_v4*>(base + e.data_offset + sizeof(u32));

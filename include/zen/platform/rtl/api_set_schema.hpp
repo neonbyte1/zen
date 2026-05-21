@@ -47,8 +47,8 @@ struct api_set_namespace_entry_v4
     u32 flags{};
     u32 name_offset{};
     u32 name_len{};
-    u32 AliasOffset{};
-    u32 AliasLength{};
+    u32 alias_offset{};
+    u32 alias_len{};
     u32 data_offset{};
 };
 
