@@ -35,8 +35,7 @@
 #include <zen/platform/rtl/object_attributes.hpp>
 #include <zen/platform/rtl/io_status_block.hpp>
 #include <zen/platform/rtl/large_integer.hpp>
-
-#include "common/input.hpp"
+#include <zen/platform/common/input.hpp>
 
 #if defined(ZEN_TARGET_64_BIT)
 namespace zen::detail {
