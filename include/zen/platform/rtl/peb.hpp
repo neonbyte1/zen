@@ -24,6 +24,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+#include <zen/coff/version.hpp>
 #include <zen/platform/rtl/ldr_data_table_entry.hpp>
 #include <zen/platform/rtl/large_integer.hpp>
 #include <zen/platform/rtl/peb_ldr_data.hpp>
