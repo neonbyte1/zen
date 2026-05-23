@@ -135,34 +135,6 @@ find_proc_address(
     return 0;
 }
 
-auto
-get_api_set_schema() noexcept -> const win::api_set_schema_w&
-{
-    static win::api_set_schema_w cache{};
-    static bool                  init{};
-
-    if (!init) {
-        init = true;
-
-        const auto* const peb = reinterpret_cast<const rtl::peb<>*>(win::get_peb());
-        const void* const map = peb->api();
-
-        if (map) {
-            const auto version = *reinterpret_cast<const u32*>(map);
-
-            if (version == 6) {
-                cache = win::dump_api_set_schema_v6<std::wstring>(map);
-            } else if (version == 4) {
-                cache = win::dump_api_set_schema_v4<std::wstring>(map);
-            } else if (version == 2) {
-                cache = win::dump_api_set_schema_v2<std::wstring>(map);
-            }
-        }
-    }
-
-    return cache;
-}
-
 template<typename T, typename View, typename Fn>
 auto
 convert(
@@ -191,6 +163,34 @@ convert(
 
     return result;
 }
+}
+
+auto
+win::get_api_set_schema() noexcept -> const win::api_set_schema_w&
+{
+    static win::api_set_schema_w cache{};
+    static bool                  init{};
+
+    if (!init) {
+        init = true;
+
+        const auto* const peb = reinterpret_cast<const rtl::peb<>*>(win::get_peb());
+        const void* const map = peb->api();
+
+        if (map) {
+            const auto version = *reinterpret_cast<const u32*>(map);
+
+            if (version == 6) {
+                cache = win::dump_api_set_schema_v6<std::wstring>(map);
+            } else if (version == 4) {
+                cache = win::dump_api_set_schema_v4<std::wstring>(map);
+            } else if (version == 2) {
+                cache = win::dump_api_set_schema_v2<std::wstring>(map);
+            }
+        }
+    }
+
+    return cache;
 }
 
 auto

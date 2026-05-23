@@ -90,6 +90,10 @@ using api_set_schema_w = std::unordered_map<std::wstring, std::vector<std::wstri
 
 NODISCARD
 auto
+get_api_set_schema() noexcept -> const api_set_schema_w&;
+
+NODISCARD
+auto
 version_info() noexcept -> version_info_t&;
 
 NODISCARD
@@ -388,7 +392,7 @@ resolve_api_schema(
     using key_t = std::conditional_t<std::is_same_v<api_set_schema_a, T>, std::string, std::wstring>;
 
     for (const auto& [key, values] : cache) {
-        // ApiSet keys are stored without ".dll"; callers hash the full name including it
+        // ApiSet keys are stored without ".dll"; callers hash the full name including it.
         const auto hash = lowercase
             ? fnv<>::hash<true>(".dll", fnv<>::get<true>(key))
             : fnv<>::hash(".dll", fnv<>::get(key));
