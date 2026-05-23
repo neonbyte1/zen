@@ -373,6 +373,8 @@ for_each_process(
     );
 
     if (status.info_length_mismatch()) {
+        buffer_size += 0x1000;
+
         const auto buffer = std::make_unique<u8[]>(static_cast<szt>(buffer_size));
 
         status = nt_query_system_information(
@@ -385,12 +387,18 @@ for_each_process(
         if (status) {
             const auto* entry = reinterpret_cast<const rtl::system_process_information<>*>(buffer.get());
 
-            while (entry && entry->next_entry_delta) {
+            while (true) {
                 if (callback(entry)) {
                     break;
                 }
 
-                entry = entry->next();
+                const auto* const next = entry->next();
+
+                if (next == entry) {
+                    break;
+                }
+
+                entry = next;
             }
         }
     }
