@@ -197,4 +197,13 @@ enum struct thread_access : u32
                                 ) | 0xFFFF,
 };
 ZEN_ENUM_OPERATORS(thread_access);
+
+template<std::integral T>
+struct max_path_t
+{
+    constexpr static T value = 260;
+};
+
+template<std::integral T = u32>
+constexpr auto max_path_v = max_path_t<T>::value;
 } //namespace zen::win
