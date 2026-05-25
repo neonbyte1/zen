@@ -82,6 +82,24 @@ get_wstring(
 
     return ret;
 }
+
+template<class T>
+requires(std::is_same_v<std::string, T> || std::is_same_v<std::wstring, T>)
+auto
+make_lower(
+    T& str
+) noexcept -> T&
+{
+    using char_t = typename T::value_type;
+
+    for (auto& c : str) {
+        if (c >= char_t('A') && c <= char_t('Z')) {
+            c = static_cast<char_t>(c + (char_t('a') - char_t('A')));
+        }
+    }
+
+    return str;
+}
 } //namespace detail
 
 namespace win {
@@ -90,7 +108,11 @@ using api_set_schema_w = std::unordered_map<std::wstring, std::vector<std::wstri
 
 NODISCARD
 auto
-get_api_set_schema() noexcept -> const api_set_schema_w&;
+get_api_set_schema_a() noexcept -> const api_set_schema_a&;
+
+NODISCARD
+auto
+get_api_set_schema_w() noexcept -> const api_set_schema_w&;
 
 NODISCARD
 auto
@@ -193,6 +215,7 @@ dump_api_set_schema_v2(
 ) noexcept -> std::conditional_t<std::is_same_v<std::string, T>, api_set_schema_a, api_set_schema_w>
 {
     using result_t = std::conditional_t<std::is_same_v<std::string, T>, api_set_schema_a, api_set_schema_w>;
+    using char_t   = typename T::value_type;
 
     if (!api_set_map) {
         return result_t{};
@@ -221,6 +244,12 @@ dump_api_set_schema_v2(
         }
 
         if (!modules.empty()) {
+            detail::make_lower(proxy);
+
+            if (const auto pos = proxy.rfind(static_cast<char_t>('-')); pos != T::npos) {
+                proxy.resize(pos);
+            }
+
             if constexpr (std::is_same_v<std::string, T>) {
                 ret.insert(std::make_pair(to_ansi(proxy), std::move(modules)));
             } else {
@@ -272,6 +301,8 @@ dump_api_set_schema_v4(
         }
 
         if (!modules.empty()) {
+            detail::make_lower(proxy);
+
             if constexpr (std::is_same_v<std::string, T>) {
                 ret.insert(std::make_pair(to_ansi(proxy), std::move(modules)));
             } else {
@@ -293,6 +324,10 @@ dump_api_set_schema_v6(
 {
     using result_t = std::conditional_t<std::is_same_v<std::string, T>, api_set_schema_a, api_set_schema_w>;
 
+    if (!api_set_map) {
+        return result_t{};
+    }
+
     result_t          ret{};
     const auto* const base       = reinterpret_cast<const uint8_t*>(api_set_map);
     const auto* const ns         = reinterpret_cast<const rtl::api_set_namespace_v6*>(base);
@@ -301,7 +336,11 @@ dump_api_set_schema_v6(
     for (u32 i{}; i < ns->count; ++i) {
         std::vector<T>    modules;
         const auto&       e          = entry_base[i];
-        auto              proxy      = detail::get_wstring(base, e.name_offset, e.name_len);
+        // important: use hashed_len, not name_le
+        // this is the canonical key the loader matches
+        // against (e.g. "api-ms-win-core-processthreads-l1-1" rather
+        // than "api-ms-win-core-processthreads-l1-1-6").
+        auto              proxy      = detail::get_wstring(base, e.name_offset, e.hashed_len);
         const auto* const value_base = reinterpret_cast<const rtl::api_set_value_entry_v6*>(base + e.value_offset);
 
         for (u32 j{}; j < e.value_count; ++j) {
@@ -310,6 +349,8 @@ dump_api_set_schema_v6(
 
             detail::add_host(modules, std::move(host));
         }
+
+        detail::make_lower(proxy);
 
         if (!modules.empty()) {
             if constexpr (std::is_same_v<std::string, T>) {
@@ -321,6 +362,43 @@ dump_api_set_schema_v6(
     }
 
     return ret;
+}
+
+template<class T>
+requires(std::is_same_v<std::string, T> || std::is_same_v<std::wstring, T>)
+NODISCARD
+auto
+normalize_api_set_name(
+    T name
+) noexcept -> T
+{
+    using char_t = typename T::value_type;
+
+    detail::make_lower(name);
+
+    // strip ".dll"
+    if constexpr (std::is_same_v<char_t, wchar_t>) {
+        if (name.size() >= 4 &&
+            std::wstring_view{name}.ends_with(xors(L".dll"))
+        ) {
+            name.resize(name.size() - 4);
+        }
+    } else {
+        if (
+            name.size() >= 4 &&
+            std::string_view{name}.ends_with(xors(".dll"))
+        ) {
+            name.resize(name.size() - 4);
+        }
+    }
+
+    // strip trailing version segment: everything from the last '-' onward.
+    // "api-ms-win-core-processthreads-l1-1-6" -> "api-ms-win-core-processthreads-l1-1"
+    if (const auto pos = name.rfind(static_cast<char_t>('-')); pos != T::npos) {
+        name.resize(pos);
+    }
+
+    return name;
 }
 
 template<class T>
@@ -341,32 +419,32 @@ resolve_api_schema(
     std::wstring
 >*
 {
-    using key_t   = std::conditional_t<std::is_same_v<api_set_schema_a, T>, std::string, std::wstring>;
-    using value_t = key_t;
+    using key_t = std::conditional_t<std::is_same_v<api_set_schema_a, T>, std::string, std::wstring>;
 
-    const auto it = std::ranges::find_if(cache, [&name](const auto& v) noexcept
-    {
-        return name.rfind(v.first, 0) == 0;
-    });
+    const auto needle = normalize_api_set_name<key_t>(name);
+    const auto it     = cache.find(needle);
 
     if (it == cache.end()) {
         return nullptr;
     }
 
     for (const auto& host : it->second) {
-        if constexpr (std::is_same_v<key_t, std::wstring>) {
-            if (host.starts_with(xors(L"api-")) || host.starts_with(xors(L"ext-"))) {
-                if (const auto* const r = resolve_api_schema(cache, host)) {
-                    return r;
-                }
+        const bool is_apiset = [&] {
+            if constexpr (std::is_same_v<key_t, std::wstring>) {
+                return host.starts_with(xors(L"api-")) || host.starts_with(xors(L"ext-"));
+            } else {
+                return host.starts_with(xors("api-")) || host.starts_with(xors("ext-"));
             }
-        }
-        else {
-            if (host.starts_with(xors("api-")) || host.starts_with(xors("ext-"))) {
-                if (const auto* const r = resolve_api_schema(cache, host)) {
-                    return r;
-                }
+        }();
+
+        if (is_apiset) {
+            if (const auto* const r = resolve_api_schema(cache, host)) {
+                return r;
             }
+
+            // forwarder claimed an ApiSet but we couldn't resolve it, try the next value
+            // rather than returning this ApiSet name.
+            continue;
         }
 
         return &host;
@@ -374,6 +452,30 @@ resolve_api_schema(
 
     return nullptr;
 }
+
+template<class T>
+requires(std::is_same_v<api_set_schema_a, T> || std::is_same_v<api_set_schema_w, T>)
+NODISCARD
+auto
+resolve_api_schema(
+    const T& cache,
+    const std::conditional_t<
+        std::is_same_v<api_set_schema_a, T>,
+        std::string_view,
+        std::wstring_view
+    >& name
+) noexcept
+-> const std::conditional_t<
+    std::is_same_v<api_set_schema_a, T>,
+    std::string,
+    std::wstring
+>*
+{
+    using key_t = std::conditional_t<std::is_same_v<api_set_schema_a, T>, std::string, std::wstring>;
+
+    return resolve_api_schema(cache, key_t{name});
+}
+
 template<class T>
 requires(std::is_same_v<api_set_schema_a, T> || std::is_same_v<api_set_schema_w, T>)
 NODISCARD
@@ -389,19 +491,14 @@ resolve_api_schema(
     std::wstring
 >*
 {
-    using key_t = std::conditional_t<std::is_same_v<api_set_schema_a, T>, std::string, std::wstring>;
-
+    // cache keys are normalized (lowercase, no ".dll", no version suffix).
+    // the caller **MUST** compute name_hash over the same normalized form.
     for (const auto& [key, values] : cache) {
-        // ApiSet keys are stored without ".dll"; callers hash the full name including it.
-        const auto hash = lowercase
-            ? fnv<>::hash<true>(".dll", fnv<>::get<true>(key))
-            : fnv<>::hash(".dll", fnv<>::get(key));
-
+        const auto hash = lowercase ? fnv<>::get<true>(key) : fnv<>::get(key);
         if (hash == name_hash) {
             return resolve_api_schema(cache, key);
         }
     }
-
     return nullptr;
 }
 } //namespace win

@@ -111,9 +111,9 @@ find_proc_address(
                 return 0;
             }
 
-            // e.g. "api-ms-win-core-processthreads-l1-1-6" + ".dll"
-            const auto lib_hash         = fnv<>::hash(".dll", fnv<>::get<true>(forwarded_name.substr(0, dot_pos)));
-            const auto forwarded_handle = win::get_module_handle(lib_hash);
+            const auto forwarded_module_name
+                = std::string{forwarded_name.substr(0, dot_pos)} + xors(".dll");
+            const auto forwarded_handle = win::get_module_handle(forwarded_module_name, true);
 
             if (!forwarded_handle) {
                 return 0;
@@ -163,10 +163,69 @@ convert(
 
     return result;
 }
+
+NODISCARD
+auto
+get_module_handle_by_hash(
+    const u32  name,
+    const bool lowercase
+) noexcept -> uptr
+{
+    uptr handle{};
+
+    win::enum_modules(
+        [&](const std::wstring_view module_name, const va_t<> module_base) noexcept -> bool
+        {
+            if (!fnv<>::valid(name)) {
+                handle = module_base;
+            } else {
+                const auto hash = lowercase
+                    ? fnv<>::get<true>(module_name)
+                    : fnv<>::get(module_name);
+
+                if (hash == name) {
+                    handle = module_base;
+                }
+            }
+
+            return handle > 0;
+        }
+    );
+
+    return handle;
+}
+} //namespace
+
+auto
+win::get_api_set_schema_a() noexcept -> const win::api_set_schema_a&
+{
+    static win::api_set_schema_a cache{};
+    static bool                  init{};
+
+    if (!init) {
+        init = true;
+
+        const auto* const peb = reinterpret_cast<const rtl::peb<>*>(win::get_peb());
+        const void* const map = peb->api();
+
+        if (map) {
+            const auto version = *reinterpret_cast<const u32*>(map);
+
+            if (version == 6) {
+                cache = win::dump_api_set_schema_v6<std::string>(map);
+            } else if (version == 4) {
+                cache = win::dump_api_set_schema_v4<std::string>(map);
+            } else if (version == 2) {
+                cache = win::dump_api_set_schema_v2<std::string>(map);
+            }
+        }
+    }
+
+    return cache;
 }
 
 auto
-win::get_api_set_schema() noexcept -> const win::api_set_schema_w&
+win::get_api_set_schema_w() noexcept -> const win::api_set_schema_w&
 {
     static win::api_set_schema_w cache{};
     static bool                  init{};
@@ -266,29 +325,10 @@ win::get_module_handle(
     const bool lowercase
 ) noexcept -> uptr
 {
-    uptr handle{};
-
-    enum_modules(
-        [&](const std::wstring_view module_name, const va_t<> module_base) noexcept -> bool
-        {
-            if (!fnv<>::valid(name)) {
-                handle = module_base;
-            } else {
-                const auto hash = lowercase
-                    ? fnv<>::get<true>(module_name)
-                    : fnv<>::get(module_name);
-
-                if (hash == name) {
-                    handle = module_base;
-                }
-            }
-
-            return handle > 0;
-        }
-    );
+    auto handle = get_module_handle_by_hash(name, lowercase);
 
     if (!handle && fnv<>::valid(name)) {
-        const auto& schema = get_api_set_schema();
+        const auto& schema = get_api_set_schema_w();
 
         if (const auto* const resolved = win::resolve_api_schema(schema, name, lowercase)) {
             handle = get_module_handle(*resolved, lowercase);
@@ -308,7 +348,17 @@ win::get_module_handle(
         ? (lowercase ? fnv<>::get<true>(name) : fnv<>::get(name))
         : 0;
 
-    return get_module_handle(name_hash, lowercase);
+    auto handle = get_module_handle_by_hash(name_hash, lowercase);
+
+    if (!handle && fnv<>::valid(name_hash)) {
+        const auto& schema = get_api_set_schema_a();
+
+        if (const auto* const resolved = win::resolve_api_schema(schema, name)) {
+            handle = get_module_handle(*resolved, lowercase);
+        }
+    }
+
+    return handle;
 }
 
 auto
@@ -321,7 +371,17 @@ win::get_module_handle(
         ? (lowercase ? fnv<>::get<true>(name) : fnv<>::get(name))
         : 0;
 
-    return get_module_handle(name_hash, lowercase);
+    auto handle = get_module_handle_by_hash(name_hash, lowercase);
+
+    if (!handle && fnv<>::valid(name_hash)) {
+        const auto& schema = get_api_set_schema_w();
+
+        if (const auto* const resolved = win::resolve_api_schema(schema, name)) {
+            handle = get_module_handle(*resolved, lowercase);
+        }
+    }
+
+    return handle;
 }
 
 auto
