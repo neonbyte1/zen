@@ -27,6 +27,8 @@
 #include <zen/core/requirements.hpp>
 
 namespace zen::win {
+constexpr u32 infinite = 0xFFFFFFFF;
+
 enum struct main_reason : u32
 {
     // Alias for DLL_PROCESS_DETACH
