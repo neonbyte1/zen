@@ -268,6 +268,12 @@ nt_wait_for_single_object(
 ) noexcept -> status_code;
 
 auto
+nt_wait_for_single_object(
+    const void* handle,
+    u32         milliseconds = win::infinite
+) noexcept -> status_code;
+
+auto
 nt_create_section(
     void**                    section_handle,
     u32                       desired_access,

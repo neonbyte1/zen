@@ -935,6 +935,22 @@ win::nt_wait_for_single_object(
 }
 
 auto
+win::nt_wait_for_single_object(
+    const void* const handle,
+    const u32         milliseconds
+) noexcept -> status_code
+{
+    i64        time{};
+    const auto is_infinite = !milliseconds || milliseconds == 0xFFFFFFFF;
+
+    if (!is_infinite) {
+        time = static_cast<i64>(milliseconds) * -10000;
+    }
+
+    return nt_wait_for_single_object(handle, 0, !is_infinite ? &time : nullptr);
+}
+
+auto
 win::nt_create_section(
     void** const                    section_handle,
     const u32                       desired_access,
