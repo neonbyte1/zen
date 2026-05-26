@@ -31,6 +31,15 @@
 
 namespace zen {
 namespace win {
+template<class T>
+requires(std::is_same_v<std::string, T> || std::is_same_v<std::wstring, T>)
+struct api_set_value
+{
+    // empty means default host
+    T importer;
+    T host;
+};
+
 NODISCARD
 auto
 to_wide(
@@ -46,20 +55,23 @@ to_ansi(
 
 namespace detail {
 template<class T>
-constexpr
 auto
 add_host(
-    T& modules,
-    std::wstring&& host
+    std::vector<win::api_set_value<T>>& modules,
+    win::api_set_value<T>               entry
 ) noexcept -> void
 {
-    if (!host.empty()) {
-        if constexpr (std::is_same_v<std::vector<std::string>, T>) {
-            modules.emplace_back(win::to_ansi(host));
-        } else {
-            modules.emplace_back(std::move(host));
+    if (entry.host.empty()) {
+        return;
+    }
+
+    for (const auto& existing : modules) {
+        if (existing.importer == entry.importer && existing.host == entry.host) {
+            return;
         }
     }
+
+    modules.push_back(std::move(entry));
 }
 
 NODISCARD
@@ -90,6 +102,7 @@ make_lower(
     T& str
 ) noexcept -> T&
 {
+    // actually just to avoid adding `algorithm` header
     using char_t = typename T::value_type;
 
     for (auto& c : str) {
@@ -103,8 +116,10 @@ make_lower(
 } //namespace detail
 
 namespace win {
-using api_set_schema_a = std::unordered_map<std::string, std::vector<std::string>>;
-using api_set_schema_w = std::unordered_map<std::wstring, std::vector<std::wstring>>;
+
+// schema becomes:
+using api_set_schema_w = std::unordered_map<std::wstring, std::vector<api_set_value<std::wstring>>>;
+using api_set_schema_a = std::unordered_map<std::string, std::vector<api_set_value<std::string>>>;
 
 NODISCARD
 auto
@@ -138,22 +153,25 @@ enum_modules(
 NODISCARD
 auto
 get_module_handle(
-    u32  name,
-    bool lowercase = true
+    u32                 name,
+    bool                lowercase = true,
+    const std::wstring& importer = {}
 ) noexcept -> uptr;
 
 NODISCARD
 auto
 get_module_handle(
-    std::string_view name,
-    bool             lowercase = true
+    const std::string& name,
+    bool               lowercase = true,
+    const std::string& importer = {}
 ) noexcept -> uptr;
 
 NODISCARD
 auto
 get_module_handle(
-    std::wstring_view name,
-    bool              lowercase = true
+    const std::wstring& name,
+    bool                lowercase = true,
+    const std::wstring& importer = {}
 ) noexcept -> uptr;
 
 NODISCARD
@@ -173,7 +191,7 @@ get_proc_address(
 ) noexcept -> uptr;
 
 template<class T>
-requires(sizeof(T) == sizeof(uptr))
+    requires(sizeof(T) == sizeof(uptr))
 NODISCARD
 auto
 get_proc_address(
@@ -190,7 +208,7 @@ get_proc_address(
 }
 
 template<class T>
-requires(sizeof(T) == sizeof(uptr))
+    requires(sizeof(T) == sizeof(uptr))
 NODISCARD
 auto
 get_proc_address(
@@ -207,7 +225,7 @@ get_proc_address(
 }
 
 template<class T>
-requires(std::is_same_v<std::string, T> || std::is_same_v<std::wstring, T>)
+    requires(std::is_same_v<std::string, T> || std::is_same_v<std::wstring, T>)
 NODISCARD
 auto
 dump_api_set_schema_v2(
@@ -215,32 +233,42 @@ dump_api_set_schema_v2(
 ) noexcept -> std::conditional_t<std::is_same_v<std::string, T>, api_set_schema_a, api_set_schema_w>
 {
     using result_t = std::conditional_t<std::is_same_v<std::string, T>, api_set_schema_a, api_set_schema_w>;
-    using char_t   = typename T::value_type;
+    using char_t = typename T::value_type;
 
     if (!api_set_map) {
         return result_t{};
     }
 
     result_t          ret{};
-    const auto* const base    = reinterpret_cast<const u8*>(api_set_map);
-    const auto* const header  = reinterpret_cast<const u32*>(base); // 0: version, 1: count
-    const auto        count   = header[1];
+    const auto* const base = reinterpret_cast<const u8*>(api_set_map);
+    const auto* const header = reinterpret_cast<const u32*>(base);
+    const auto        count = header[1];
     const auto* const entries = reinterpret_cast<const rtl::api_set_namespace_entry_v2*>(base + sizeof(u32) * 2);
 
     for (u32 i{}; i < count; ++i) {
-        std::vector<T> modules;
+        std::vector<api_set_value<T>> modules;
 
-        const auto&       e           = entries[i];
-        auto              proxy       = detail::get_wstring(base, e.name_offset, e.name_len);
-        const auto* const values      = reinterpret_cast<const rtl::api_set_value_entry_v2*>(base + e.data_offset);
-        const auto        num_values  = reinterpret_cast<const u32*>(base + e.data_offset)[0];
+        const auto& e = entries[i];
+        auto              proxy = detail::get_wstring(base, e.name_offset, e.name_len);
+        const auto        num_values = reinterpret_cast<const u32*>(base + e.data_offset)[0];
         const auto* const value_entry = reinterpret_cast<const rtl::api_set_value_entry_v2*>(base + e.data_offset + sizeof(u32));
 
         for (u32 j{}; j < num_values; ++j) {
-            const auto& v    = value_entry[j];
-            auto        host = detail::get_wstring(base, v.value_offset, v.value_len);
+            const auto& v = value_entry[j];
 
-            detail::add_host(modules, std::move(host));
+            auto importer = v.name_len
+                ? detail::get_wstring(base, v.name_offset, v.name_len)
+                : std::wstring{};
+            auto host = detail::get_wstring(base, v.value_offset, v.value_len);
+
+            detail::make_lower(importer);
+            detail::make_lower(host);
+
+            if constexpr (std::is_same_v<std::string, T>) {
+                modules.push_back({ to_ansi(importer), to_ansi(host) });
+            } else {
+                modules.push_back({ std::move(importer), std::move(host) });
+            }
         }
 
         if (!modules.empty()) {
@@ -276,28 +304,45 @@ dump_api_set_schema_v4(
     }
 
     result_t          ret{};
-    const auto* const base    = reinterpret_cast<const uint8_t*>(api_set_map);
-    const auto* const header  = reinterpret_cast<const u32*>(base);
-    const auto        version = header[0];
-    const auto        count   = header[3];
+    const auto* const base = reinterpret_cast<const uint8_t*>(api_set_map);
+    const auto* const header = reinterpret_cast<const u32*>(base);
+    const auto        count = header[3];
     const auto* const entries = reinterpret_cast<const rtl::api_set_namespace_entry_v4*>(base + sizeof(u32) * 6);
 
     for (u32 i{}; i < count; ++i) {
-        std::vector<T>    modules;
-        const auto&       e           = entries[i];
-        auto              proxy       = detail::get_wstring(base, e.name_offset, e.name_len);
-        auto              alias       = detail::get_wstring(base, e.alias_offset, e.alias_len);
-        const auto* const values      = reinterpret_cast<const rtl::api_set_value_entry_v4*>(base + e.data_offset);
-        const auto        num_values  = *reinterpret_cast<const u32*>(base + e.data_offset);
+        std::vector<api_set_value<T>> modules;
+        const auto& e = entries[i];
+        auto              proxy = detail::get_wstring(base, e.name_offset, e.name_len);
+        auto              alias = detail::get_wstring(base, e.alias_offset, e.alias_len);
+        const auto        num_values = *reinterpret_cast<const u32*>(base + e.data_offset);
         const auto* const value_entry = reinterpret_cast<const rtl::api_set_value_entry_v4*>(base + e.data_offset + sizeof(u32));
 
-        detail::add_host(modules, std::move(alias));
+        if (!alias.empty()) {
+            detail::make_lower(alias);
+
+            if constexpr (std::is_same_v<std::string, T>) {
+                detail::add_host(modules, {T{}, to_ansi(alias)});
+            } else {
+                detail::add_host(modules, {T{}, std::move(alias)});
+            }
+        }
 
         for (u32 j{}; j < num_values; ++j) {
-            const auto& v    = value_entry[j];
-            auto        host = detail::get_wstring(base, v.value_offset, v.value_len);
+            const auto& v = value_entry[j];
 
-            detail::add_host(modules, std::move(host));
+            auto importer = v.name_len
+                ? detail::get_wstring(base, v.name_offset, v.name_len)
+                : std::wstring{};
+            auto host = detail::get_wstring(base, v.value_offset, v.value_len);
+
+            detail::make_lower(importer);
+            detail::make_lower(host);
+
+            if constexpr (std::is_same_v<std::string, T>) {
+                modules.push_back({to_ansi(importer), to_ansi(host)});
+            } else {
+                modules.push_back({std::move(importer), std::move(host)});
+            }
         }
 
         if (!modules.empty()) {
@@ -334,7 +379,7 @@ dump_api_set_schema_v6(
     const auto* const entry_base = reinterpret_cast<const rtl::api_set_namespace_entry_v6*>(base + ns->entry_offset);
 
     for (u32 i{}; i < ns->count; ++i) {
-        std::vector<T>    modules;
+        std::vector<api_set_value<T>> modules;
         const auto&       e          = entry_base[i];
         // important: use hashed_len, not name_le
         // this is the canonical key the loader matches
@@ -345,9 +390,19 @@ dump_api_set_schema_v6(
 
         for (u32 j{}; j < e.value_count; ++j) {
             const auto& v = value_base[j];
-            auto host     = detail::get_wstring(base, v.value_offset, v.value_len);
+            auto importer = v.name_len
+                ? detail::get_wstring(base, v.name_offset, v.name_len)
+                : std::wstring{};
+            auto host = detail::get_wstring(base, v.value_offset, v.value_len);
 
-            detail::add_host(modules, std::move(host));
+            detail::make_lower(importer);
+            detail::make_lower(host);
+
+            if constexpr (std::is_same_v<std::string, T>) {
+                modules.push_back({to_ansi(importer), to_ansi(host)});
+            } else {
+                modules.push_back({std::move(importer), std::move(host)});
+            }
         }
 
         detail::make_lower(proxy);
@@ -411,7 +466,12 @@ resolve_api_schema(
         std::is_same_v<api_set_schema_a, T>,
         std::string,
         std::wstring
-    >& name
+    >& name,
+    const std::conditional_t<
+        std::is_same_v<api_set_schema_a, T>,
+        std::string,
+        std::wstring
+    >& importer = {}
 ) noexcept
 -> const std::conditional_t<
     std::is_same_v<api_set_schema_a, T>,
@@ -428,29 +488,46 @@ resolve_api_schema(
         return nullptr;
     }
 
-    for (const auto& host : it->second) {
-        const bool is_apiset = [&] {
-            if constexpr (std::is_same_v<key_t, std::wstring>) {
-                return host.starts_with(xors(L"api-")) || host.starts_with(xors(L"ext-"));
-            } else {
-                return host.starts_with(xors("api-")) || host.starts_with(xors("ext-"));
-            }
-        }();
+    auto importer_norm = importer;
+    detail::make_lower(importer_norm);
 
-        if (is_apiset) {
-            if (const auto* const r = resolve_api_schema(cache, host)) {
-                return r;
+    const api_set_value<key_t>* chosen = nullptr;
+    if (!importer_norm.empty()) {
+        for (const auto& v : it->second) {
+            if (!v.importer.empty() && v.importer == importer_norm) {
+                chosen = &v;
+                break;
             }
-
-            // forwarder claimed an ApiSet but we couldn't resolve it, try the next value
-            // rather than returning this ApiSet name.
-            continue;
         }
-
-        return &host;
     }
 
-    return nullptr;
+    if (!chosen) {
+        for (const auto& v : it->second) {
+            if (v.importer.empty()) {
+                chosen = &v;
+                break;
+            }
+        }
+    }
+
+    if (!chosen) {
+        return nullptr;
+    }
+
+    const bool is_apiset = [&]
+    {
+        if constexpr (std::is_same_v<key_t, std::wstring>) {
+            return chosen->host.starts_with(xors(L"api-")) || chosen->host.starts_with(xors(L"ext-"));
+        } else {
+            return chosen->host.starts_with(xors("api-")) || chosen->host.starts_with(xors("ext-"));
+        }
+    }();
+
+    if (is_apiset) {
+        return resolve_api_schema(cache, chosen->host, importer_norm);
+    }
+
+    return &chosen->host;
 }
 
 template<class T>
@@ -483,7 +560,12 @@ auto
 resolve_api_schema(
     const T&   cache,
     const u32  name_hash,
-    const bool lowercase = true
+    const bool lowercase = true,
+    const std::conditional_t<
+        std::is_same_v<api_set_schema_a, T>,
+        std::string,
+        std::wstring
+    >& importer = {}
 ) noexcept
 -> const std::conditional_t<
     std::is_same_v<api_set_schema_a, T>,
@@ -496,7 +578,7 @@ resolve_api_schema(
     for (const auto& [key, values] : cache) {
         const auto hash = lowercase ? fnv<>::get<true>(key) : fnv<>::get(key);
         if (hash == name_hash) {
-            return resolve_api_schema(cache, key);
+            return resolve_api_schema(cache, key, importer);
         }
     }
     return nullptr;

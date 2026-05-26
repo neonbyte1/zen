@@ -26,6 +26,7 @@
 #include <zen/platform/rtl/peb.hpp>
 #include <zen/nt/directories/exports.hpp>
 #include <zen/nt/image.hpp>
+#include <string>
 #include <intrin.h>
 
 using namespace zen;
@@ -113,7 +114,14 @@ find_proc_address(
 
             const auto forwarded_module_name
                 = std::string{forwarded_name.substr(0, dot_pos)} + xors(".dll");
-            const auto forwarded_handle = win::get_module_handle(forwarded_module_name, true);
+
+            std::string importer_name;
+
+            if (const auto rva = exp_dir->name()) {
+                importer_name.assign(reinterpret_cast<const char*>(handle + exp_dir->name()));
+            }
+
+            const auto forwarded_handle = win::get_module_handle(forwarded_module_name, true, importer_name);
 
             if (!forwarded_handle) {
                 return 0;
@@ -147,7 +155,7 @@ convert(
     std::unique_ptr<T[]> heap_buffer;
     std::basic_string<T> result;
 
-    if (!fn(&bytes_needed, nullptr, 0, in.data(), in.length())) {
+    if (!in.empty() && !fn(&bytes_needed, nullptr, 0, in.data(), in.length())) {
         auto* ptr{ stack_buffer };
         size_t bytes_converted{};
 
@@ -321,8 +329,9 @@ win::enum_modules(
 
 auto
 win::get_module_handle(
-    const u32  name,
-    const bool lowercase
+    const u32           name,
+    const bool          lowercase,
+    const std::wstring& importer
 ) noexcept -> uptr
 {
     auto handle = get_module_handle_by_hash(name, lowercase);
@@ -330,8 +339,8 @@ win::get_module_handle(
     if (!handle && fnv<>::valid(name)) {
         const auto& schema = get_api_set_schema_w();
 
-        if (const auto* const resolved = win::resolve_api_schema(schema, name, lowercase)) {
-            handle = get_module_handle(*resolved, lowercase);
+        if (const auto* const resolved = win::resolve_api_schema(schema, name, lowercase, importer)) {
+            handle = get_module_handle(*resolved, lowercase, importer);
         }
     }
 
@@ -340,8 +349,9 @@ win::get_module_handle(
 
 auto
 win::get_module_handle(
-    const std::string_view name,
-    const bool             lowercase
+    const std::string& name,
+    const bool         lowercase,
+    const std::string& importer
 ) noexcept -> uptr
 {
     const u32 name_hash = !name.empty()
@@ -353,8 +363,8 @@ win::get_module_handle(
     if (!handle && fnv<>::valid(name_hash)) {
         const auto& schema = get_api_set_schema_a();
 
-        if (const auto* const resolved = win::resolve_api_schema(schema, name)) {
-            handle = get_module_handle(*resolved, lowercase);
+        if (const auto* const resolved = win::resolve_api_schema(schema, name, importer)) {
+            handle = get_module_handle(*resolved, lowercase, importer);
         }
     }
 
@@ -363,8 +373,9 @@ win::get_module_handle(
 
 auto
 win::get_module_handle(
-    const std::wstring_view name,
-    const bool              lowercase
+    const std::wstring& name,
+    const bool          lowercase,
+    const std::wstring& importer
 ) noexcept -> uptr
 {
     const u32 name_hash = !name.empty()
@@ -376,8 +387,8 @@ win::get_module_handle(
     if (!handle && fnv<>::valid(name_hash)) {
         const auto& schema = get_api_set_schema_w();
 
-        if (const auto* const resolved = win::resolve_api_schema(schema, name)) {
-            handle = get_module_handle(*resolved, lowercase);
+        if (const auto* const resolved = win::resolve_api_schema(schema, name, importer)) {
+            handle = get_module_handle(*resolved, lowercase, importer);
         }
     }
 
